@@ -41,10 +41,11 @@ mac:
   icon: images/2.icns
   category: public.app-category.productivity
   artifactName: "${productName} ${version}.dmg"
-  hardenedRuntime: true
+  hardenedRuntime: false
   gatekeeperAssess: false
   entitlements: null
   entitlementsInherit: null
+  identity: null
 
 dmg:
   title: "${productName} ${version}"
