@@ -1,119 +1,122 @@
-# 🚀 代理爬虫配置完成
+# 🌟 众之翼矩阵 (ZhongZhiYi Matrix)
 
-## 📋 测试结果总览
+一个功能强大的内容创作桌面应用，基于Electron构建，提供AI智能内容生成和管理功能。
 
-✅ **代理状态**: 完全正常  
-✅ **成功率**: 100%  
-✅ **平均响应时间**: ~2秒  
-✅ **支持功能**: HTTP/HTTPS, Cookie, POST, 重定向, 并发  
+![Version](https://img.shields.io/badge/version-1.0.5-blue.svg)
+![Platform](https://img.shields.io/badge/platform-macOS-lightgrey.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-## 🌍 代理信息
+## 📦 下载安装
 
-- **代理服务器**: `61.172.168.161:2081`
-- **认证信息**: `ravu01r1:ravu01r1`
-- **代理IP**: `51.81.44.170`
-- **地理位置**: 美国弗吉尼亚州雷斯顿
-- **ISP**: OVH SAS
+### 最新版本下载
 
-## 🔧 快速开始
+1. **从GitHub Releases下载**（推荐）
+   - 访问 [Releases页面](https://github.com/Axun666200/zhongzhiyi-matrix/releases)
+   - 下载最新版本的DMG文件
 
-### 基础用法
+2. **从GitHub Actions下载**（开发版本）
+   - 访问 [Actions页面](https://github.com/Axun666200/zhongzhiyi-matrix/actions)
+   - 选择最新的成功构建
+   - 下载 `macos-build` 构建产物
 
-```python
-import requests
+### 安装说明
 
-# 代理配置
-proxies = {
-    'http': 'http://ravu01r1:ravu01r1@61.172.168.161:2081',
-    'https': 'http://ravu01r1:ravu01r1@61.172.168.161:2081'
-}
+1. 下载DMG文件到本地
+2. 双击打开DMG文件
+3. 将应用拖拽到 `Applications` 文件夹
+4. 在启动台中找到并启动应用
 
-# 发送请求
-response = requests.get('https://example.com', proxies=proxies)
-print(response.text)
-```
+## 🚀 功能特性
 
-### 使用Session (推荐)
+- **🤖 AI内容生成**: 智能创作工具
+- **📱 多平台支持**: 适配主流内容平台
+- **🔐 认证系统**: 安全的用户认证机制
+- **🎨 可视化界面**: 现代化的用户界面
+- **⚡ 高性能**: 基于Electron的跨平台解决方案
 
-```python
-import requests
+## 🛠️ 开发环境
 
-session = requests.Session()
-session.proxies = {
-    'http': 'http://ravu01r1:ravu01r1@61.172.168.161:2081',
-    'https': 'http://ravu01r1:ravu01r1@61.172.168.161:2081'
-}
+如果您想从源码构建应用：
 
-# 设置Headers
-session.headers.update({
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-})
+### 环境要求
 
-# 发送请求
-response = session.get('https://example.com')
-```
+- Node.js 18+
+- npm 或 yarn
+- macOS (用于构建macOS版本)
 
-## 📁 文件说明
-
-- `production_crawler.py` - 生产级爬虫模板，包含完整功能
-- `crawler.log` - 爬虫运行日志
-- `README.md` - 本文档
-
-## 🎯 生产级爬虫特性
-
-`production_crawler.py` 包含以下特性：
-
-1. **代理配置**: 自动配置已验证的代理
-2. **重试机制**: 自动重试失败的请求
-3. **智能延迟**: 防止被反爬虫系统检测
-4. **日志记录**: 详细的运行日志
-5. **错误处理**: 完善的异常处理
-6. **多种请求**: 支持GET、POST等方法
-7. **文件下载**: 支持文件下载功能
-8. **状态检查**: 代理状态实时监控
-
-## 🚀 运行生产爬虫
+### 安装依赖
 
 ```bash
-python production_crawler.py
+npm install
 ```
 
-## 📊 测试验证记录
+### 开发模式
 
-### 基础功能测试
-- ✅ IP检测: `51.81.44.170` (美国)
-- ✅ 用户代理: 正常识别
-- ✅ HTTP头: 完整传输
-- ✅ Cookie: 持久化支持
-- ✅ 重定向: 自动处理
-- ✅ HTTPS: 安全连接支持
+```bash
+npm start
+```
 
-### 实际网站测试
-- ✅ 百度: 成功访问 (620KB)
-- ✅ JSON API: 正常解析
-- ✅ HTML页面: 完整获取
-- ✅ POST请求: 数据提交成功
+### 构建应用
 
-### 性能测试
-- ✅ 并发请求: 5/5 成功
-- ✅ Session持久: Cookie保持
-- ✅ 响应时间: 0.9-4.2秒
+```bash
+# 构建macOS版本
+npm run build:mac
 
-## 💡 使用建议
+# 构建所有平台
+npm run build
+```
 
-1. **生产环境**: 直接使用 `production_crawler.py`
-2. **调试模式**: 查看 `crawler.log` 日志文件
-3. **请求频率**: 建议1-3秒间隔，避免被限制
-4. **错误处理**: 已内置重试机制
-5. **监控**: 定期检查代理状态
+## 📁 项目结构
 
-## ⚠️ 注意事项
+```
+zhongzhiyi-matrix/
+├── main.js              # Electron主进程
+├── main.html            # 主界面
+├── preload.js           # 预加载脚本
+├── package.json         # 项目配置
+├── electron-builder.yml # 构建配置
+├── auth/                # 认证相关
+├── components/          # 组件目录
+├── images/              # 图像资源
+└── .github/workflows/   # CI/CD配置
+```
 
-1. 遵守目标网站的robots.txt
-2. 合理控制爬取频率
-3. 尊重网站服务条款
-4. 避免对服务器造成过大压力
+## 🔧 配置说明
+
+应用支持多种配置选项，详见：
+- `认证系统使用说明.md` - 认证系统配置
+- `用户安装指南.md` - 用户安装指导
+- `构建完成说明.md` - 构建相关说明
+
+## 🤝 贡献指南
+
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 打开Pull Request
+
+## 📄 许可证
+
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
+
+## 👥 开发团队
+
+**众之翼团队** - *初始开发* - [Axun666200](https://github.com/Axun666200)
+
+## 🐛 问题反馈
+
+如果您发现任何问题或有功能建议，请：
+
+1. 查看 [Issues](https://github.com/Axun666200/zhongzhiyi-matrix/issues) 是否已有相关问题
+2. 如果没有，请创建新的Issue
+3. 提供详细的问题描述和复现步骤
+
+## 📱 联系我们
+
+- 项目仓库: https://github.com/Axun666200/zhongzhiyi-matrix
+- 问题反馈: [GitHub Issues](https://github.com/Axun666200/zhongzhiyi-matrix/issues)
 
 ---
 
-🎉 **代理配置完成！可以开始你的爬虫项目了！**
+💝 **感谢使用众之翼矩阵！让创作更智能，让内容更精彩！**
