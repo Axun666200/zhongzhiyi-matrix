@@ -38,7 +38,7 @@ mac:
       arch: 
         - x64
         - arm64
-  icon: images/2.icns
+  # icon: images/2.icns  # 临时注释，修复hdiutil错误
   category: public.app-category.productivity
   artifactName: "${productName} ${version}.dmg"
   hardenedRuntime: false
