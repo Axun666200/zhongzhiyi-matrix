@@ -1,75 +1,75 @@
-name: Build and Release
+name   名字: Build and Release
 
-on:
-  push:
-    branches:
-      - main
-    tags:
-      - 'v*'
+on:   :
+  push:   推动:
+    branches:   分支:
+      - main   ——主要
+    tags:   标签:
+      - 'v*'   ——“v *”
   workflow_dispatch:
 
-jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest, macos-latest]
+jobs:   工作:
+  build:   构建:
+    runs-on: ${{ matrix.os }}   运行于：${{ matrix.os }}
+    strategy:   策略:
+      matrix:   矩阵:
+        os: [windows-latest, macos-latest]操作系统：[Windows 最新版本，macOS 最新版本]
     
-    steps:
-    - uses: actions/checkout@v4
+    steps:   步骤:
+    - uses: actions/checkout@v4- 使用：actions/checkout@v4
     
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
+    - name: Setup Node.js   —name: Setup Node.js
+      uses: actions/setup-node@v4使用：actions/setup-node@v4
+      with:   :
+        node-version: '18'   节点信息:“18”
     
-    - name: Install dependencies
-      run: npm install
+    - name: Install dependencies- 名称：安装依赖项
+      run: npm install   运行：NPM install
     
-    - name: Build for Windows
-      if: matrix.os == 'windows-latest'
+    - name: Build for Windows   - 名称：为 Windows 构建
+      if: matrix.os == 'windows-latest'如果：matrix.os 等于 'windows-latest
       run: npm run build:win
     
     - name: Build for macOS
-      if: matrix.os == 'macos-latest'
+      if: matrix.os == 'macos-latest'如果：matrix.os 等于 'macos-latest
       run: npm run build:mac
     
     - name: Upload Windows artifacts
-      if: matrix.os == 'windows-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: windows-build
-        path: dist/*.exe
+      if: matrix.os == 'windows-latest'如果：matrix.os 等于 'windows-latest
+      uses: actions/upload-artifact@v4使用：actions/upload-artifact@v4
+      with:   :
+        name: windows-build   名称:windows-build
+        path: dist/*.exe   路径:dist / * . exe
     
-    - name: Upload macOS artifacts
-      if: matrix.os == 'macos-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: macos-build
-        path: dist/*.dmg
+    - name: Upload macOS artifacts- 名称：上传 macOS 构建产物
+      if: matrix.os == 'macos-latest'如果：matrix.os 等于 'macos-latest
+      uses: actions/upload-artifact@v4使用：actions/upload-artifact@v4
+      with:   :
+        name: macos-build   名称:macos-build
+        path: dist/*.dmg   路径:dist / * . dmg
 
   release:
-    needs: build
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
+    needs: build   需求:构建
+    runs-on: ubuntu-latest   运行于：ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')如果：github.ref 以 'refs/tags/'   “refs /标签/” 开头
     
-    steps:
-    - name: Download Windows artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: windows-build
-        path: ./dist
+    steps:   步骤:
+    - name: Download Windows artifacts名称：下载 Windows 构建产物
+      uses: actions/download-artifact@v4使用：actions/download-artifact@v4
+      with:   :
+        name: windows-build   名称:windows-build
+        path: ./dist   路径:/ dist
     
-    - name: Download macOS artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: macos-build
-        path: ./dist
+    - name: Download macOS artifacts- 名称：下载 macOS 构建产物
+      uses: actions/download-artifact@v4使用：actions/download-artifact@v4
+      with:   :
+        name: macos-build   名称:macos-build
+        path: ./dist   路径:/ dist
     
-    - name: Create Release
-      uses: softprops/action-gh-release@v2
-      with:
-        files: ./dist/*
+    - name: Create Release   - 名称：创建发布版本
+      uses: softprops/action-gh-release@v2使用：softprops/action-gh-release@v2
+      with:   :
+        files: ./dist/*   文件:。/ dist / *
         generate_release_notes: true
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  （此内容为环境变量的设置，无需翻译）
