@@ -29,7 +29,7 @@ win:
     - target: nsis
       arch: 
         - x64
-  icon: images/2.png
+  icon: images/0.png
   artifactName: "${productName} Setup ${version}.exe"
 
 mac:
@@ -38,7 +38,7 @@ mac:
       arch: 
         - x64
         - arm64
-  icon: images/2.png
+  icon: images/0.png
   category: public.app-category.productivity
   artifactName: "${productName} ${version}.dmg"
   hardenedRuntime: true
@@ -48,7 +48,7 @@ mac:
 
 dmg:
   title: "${productName} ${version}"
-  icon: images/2.png
+  icon: images/0.png
   iconSize: 80
   contents:
     - x: 410
