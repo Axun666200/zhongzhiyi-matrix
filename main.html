@@ -1,0 +1,2727 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>众之翼矩阵</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 修复无头模式和开始探索按钮比例的样式补丁 -->
+    <style>
+        /* 比例协调优化补丁 */
+        
+        /* 1. 醒目的无头模式区域 */
+        .headless-mode-section {
+            margin-bottom: 16px !important;
+            padding: 16px !important;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(168, 85, 247, 0.05)) !important;
+            border-radius: 12px !important;
+            border: 2px solid rgba(59, 130, 246, 0.2) !important;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1) !important;
+            flex: 1 !important;
+            min-width: 320px !important;
+            max-width: 450px !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .headless-mode-section:hover {
+            border-color: rgba(59, 130, 246, 0.4) !important;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.15) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        /* 2. 优化无头模式切换布局 */
+        .headless-mode-toggle {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 12px !important;
+        }
+
+        /* 3. 醒目的切换开关 */
+        .toggle-label {
+            display: flex !important;
+            align-items: center !important;
+            cursor: pointer !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            color: #1e40af !important;
+            user-select: none !important;
+            margin-bottom: 0 !important;
+            transition: color 0.3s ease !important;
+        }
+        
+        .toggle-label:hover {
+            color: #1d4ed8 !important;
+        }
+
+        /* 4. 突出的描述信息 */
+        .headless-mode-description {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            margin-top: 8px !important;
+            padding: 10px 14px !important;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(168, 85, 247, 0.08)) !important;
+            border-radius: 8px !important;
+            border-left: 4px solid #3b82f6 !important;
+            flex: 1 !important;
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1) !important;
+        }
+
+        .headless-mode-description span {
+            font-size: 13px !important;
+            color: #374151 !important;
+            line-height: 1.4 !important;
+            font-weight: 500 !important;
+        }
+        
+        .headless-mode-description svg {
+            color: #3b82f6 !important;
+            flex-shrink: 0 !important;
+        }
+
+        /* 5. 增强开始探索按钮 */
+        .filter-actions .btn-info {
+            /* 增大按钮尺寸 */
+            padding: 16px 32px !important;
+            font-size: 16px !important;
+            font-weight: 700 !important;
+            
+            /* 增强视觉效果 */
+            background: rgba(59, 130, 246, 0.15) !important;
+            border: 2px solid rgba(59, 130, 246, 0.4) !important;
+            border-radius: 12px !important;
+            
+            /* 更突出的颜色 */
+            color: #1e40af !important;
+            
+            /* 增强阴影效果 */
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.7),
+                0 6px 12px rgba(59, 130, 246, 0.2),
+                0 3px 6px rgba(59, 130, 246, 0.1) !important;
+            
+            /* 确保按钮有足够的最小宽度 */
+            min-width: 160px !important;
+            min-height: 52px !important;
+        }
+
+        .filter-actions .btn-info svg {
+            width: 22px !important;
+            height: 22px !important;
+        }
+
+        .filter-actions .btn-info:hover {
+            background: rgba(59, 130, 246, 0.25) !important;
+            border-color: rgba(59, 130, 246, 0.6) !important;
+            color: #1e3a8a !important;
+            
+            /* 增强悬停阴影 */
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                0 10px 20px rgba(59, 130, 246, 0.3),
+                0 5px 10px rgba(59, 130, 246, 0.2) !important;
+            
+            /* 轻微上浮效果 */
+            transform: translateY(-3px) !important;
+        }
+
+        /* 6. 改善整体容器布局 */
+        .filter-actions {
+            display: flex !important;
+            align-items: stretch !important;
+            gap: 16px !important;
+            flex-wrap: wrap !important;
+            justify-content: space-between !important;
+            padding: 8px 0 !important;
+        }
+
+        /* 7. 响应式优化 */
+        @media (max-width: 768px) {
+            .filter-actions {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 12px !important;
+            }
+            
+            .headless-mode-section {
+                max-width: none !important;
+                min-width: auto !important;
+            }
+            
+            .filter-actions .btn-info {
+                min-width: auto !important;
+                width: 100% !important;
+            }
+        }
+
+        /* 8. 中等屏幕优化 */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .filter-actions {
+                flex-direction: row !important;
+                align-items: center !important;
+            }
+            
+            .headless-mode-section {
+                flex: 1 !important;
+                max-width: 320px !important;
+            }
+            
+            .filter-actions .btn-info {
+                flex-shrink: 0 !important;
+                min-width: 140px !important;
+            }
+        }
+
+        /* 代理配置样式 */
+        .proxy-config-section {
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(248, 250, 252, 0.8);
+            border: 1px solid rgba(226, 232, 240, 0.6);
+            border-radius: 8px;
+        }
+
+        .proxy-config-section label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            color: #374151;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+
+        .proxy-config-section label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #3b82f6;
+            cursor: pointer;
+        }
+
+        .proxy-config-panel {
+            margin-top: 12px;
+            padding: 16px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .proxy-config-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .proxy-config-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .proxy-config-item {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .proxy-config-item:last-child {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: end;
+        }
+
+        .proxy-config-item label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .proxy-config-item input,
+        .proxy-config-item select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+
+        .proxy-config-item input:focus,
+        .proxy-config-item select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn-test-proxy {
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-test-proxy:hover {
+            background: #e5e7eb;
+            border-color: #9ca3af;
+        }
+
+        .btn-test-proxy:active {
+            background: #d1d5db;
+        }
+
+        .btn-test-proxy.testing {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #d97706;
+        }
+
+        .btn-test-proxy.success {
+            background: #dcfce7;
+            border-color: #16a34a;
+            color: #15803d;
+        }
+
+        .btn-test-proxy.error {
+            background: #fee2e2;
+            border-color: #dc2626;
+            color: #dc2626;
+        }
+
+        .proxy-config-note {
+            margin-top: 12px;
+            padding: 8px 12px;
+            background: rgba(59, 130, 246, 0.05);
+            border-left: 3px solid #3b82f6;
+            border-radius: 4px;
+        }
+
+        .proxy-config-note small {
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        /* 响应式优化 */
+        @media (max-width: 768px) {
+            .proxy-config-row {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .proxy-config-item {
+                min-width: auto;
+            }
+
+            .proxy-config-item:last-child {
+                flex: 1;
+                align-items: stretch;
+            }
+
+            .btn-test-proxy {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 左侧边栏 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    </svg>
+                    <span>众之翼</span>
+                </div>
+                <div class="subtitle">小红书数字营销矩阵获客系统</div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                
+                <div class="nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>账号管理</span>
+                </div>
+                
+                
+                <div class="nav-item active">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 11H15M9 15H15M17 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H12.5858C12.851 3 13.1054 3.10536 13.2929 3.29289L19.7071 9.70711C19.8946 9.89464 20 10.149 20 10.4142V19C20 20.1046 19.1054 21 18 21H17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>内容创作</span>
+                </div>
+
+
+                
+                <div class="nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 19L19 12L12 5L5 12L12 19Z" stroke="#ff6b8a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>发布管理</span>
+                </div>
+                
+                <div class="nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 17H20L18.5951 15.5951C18.2141 15.2141 18 14.6973 18 14.1585V11C18 8.38757 16.3304 6.16509 14 5.34142V5C14 3.89543 13.1046 3 12 3C10.8954 3 10 3.89543 10 5V5.34142C7.66962 6.16509 6 8.38757 6 11V14.1585C6 14.6973 5.78595 15.2141 5.40493 15.5951L4 17H9M15 17V18C15 19.6569 13.6569 21 12 21C10.3431 21 9 19.6569 9 18V17M15 17H9" stroke="#ffc107" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>通知管理</span>
+                </div>
+
+
+
+                <div class="nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 12H15M9 16H15M17 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H12.5858C12.851 3 13.1054 3.10536 13.2929 3.29289L19.7071 9.70711C19.8946 9.89464 20 10.149 20 10.4142V19C20 20.1046 19.1054 21 18 21H17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>内容库</span>
+                </div>
+                
+                <div class="nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 9L16 15L8 21V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>爆款拆解</span>
+                </div>
+                
+                <div class="nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 16L8.586 11.414C8.96106 11.0391 9.46967 10.8284 10 10.8284C10.5303 10.8284 11.0389 11.0391 11.414 11.414L16 16M14 14L15.586 12.414C15.9611 12.0391 16.4697 11.8284 17 11.8284C17.5303 11.8284 18.0389 12.0391 18.414 12.414L20 14M14 8H14.01M6 20H18C19.1046 20 20 19.1046 20 18V6C20 4.89543 19.1046 4 18 4H6C4.89543 4 4 4.89543 4 6V18C4 19.1046 4.89543 20 6 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>文生图</span>
+                </div>
+                
+                <div class="nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10.325 4.317C10.751 2.561 13.249 2.561 13.675 4.317C13.7389 4.5808 13.8642 4.82578 14.0407 5.032C14.2172 5.23822 14.4399 5.39985 14.6907 5.50375C14.9414 5.60764 15.2132 5.65085 15.4838 5.62987C15.7544 5.60889 16.0162 5.5243 16.248 5.383C17.791 4.443 19.558 6.209 18.618 7.753C18.4769 7.98466 18.3924 8.24634 18.3715 8.51677C18.3506 8.78721 18.3938 9.05877 18.4975 9.30938C18.6013 9.55999 18.7627 9.78258 18.9687 9.95905C19.1747 10.1355 19.4194 10.2609 19.683 10.325C21.439 10.751 21.439 13.249 19.683 13.675C19.4192 13.7389 19.1742 13.8642 18.968 14.0407C18.7618 14.2172 18.6002 14.4399 18.4963 14.6907C18.3924 14.9414 18.3491 15.2132 18.3701 15.4838C18.3911 15.7544 18.4757 16.0162 18.617 16.248C19.557 17.791 17.791 19.558 16.247 18.618C16.0153 18.4769 15.7537 18.3924 15.4832 18.3715C15.2128 18.3506 14.9412 18.3938 14.6906 18.4975C14.44 18.6013 14.2174 18.7627 14.0409 18.9687C13.8645 19.1747 13.7391 19.4194 13.675 19.683C13.249 21.439 10.751 21.439 10.325 19.683C10.2611 19.4192 10.1358 19.1742 9.95929 18.968C9.78279 18.7618 9.56011 18.6002 9.30935 18.4963C9.05859 18.3924 8.78683 18.3491 8.51621 18.3701C8.24559 18.3911 7.98375 18.4757 7.752 18.617C6.209 19.557 4.442 17.791 5.382 16.247C5.5231 16.0153 5.60755 15.7537 5.62848 15.4832C5.64942 15.2128 5.60624 14.9412 5.50247 14.6906C5.3987 14.44 5.23726 14.2174 5.03127 14.0409C4.82529 13.8645 4.58056 13.7391 4.317 13.675C2.561 13.249 2.561 10.751 4.317 10.325C4.5808 10.2611 4.82578 10.1358 5.032 9.95929C5.23822 9.78279 5.39985 9.56011 5.50375 9.30935C5.60764 9.05859 5.65085 8.78683 5.62987 8.51621C5.60889 8.24559 5.5243 7.98375 5.383 7.752C4.443 6.209 6.209 4.442 7.753 5.382C7.98466 5.5231 8.24634 5.60755 8.51677 5.62848C8.78721 5.64942 9.05877 5.60624 9.30938 5.50247C9.55999 5.3987 9.78258 5.23726 9.95905 5.03127C10.1355 4.82529 10.2609 4.58056 10.325 4.317Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>系统设置</span>
+                </div>
+            </nav>
+        </div>
+        
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <!-- AI智能创作区域 -->
+            <div class="content-section active" id="ai-creation">
+                <div class="section-header">
+                    <h1>AI智能创作</h1>
+                    <p>让AI帮你创作出色的小红书内容</p>
+                </div>
+                
+                <div class="creation-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productName">产品名称 <span class="required">*</span></label>
+                            <input type="text" id="productName" placeholder="请输入产品名称，比如：兰蔻小黑瓶精华">
+                        </div>
+                        <div class="form-group">
+                            <label for="style">创作风格</label>
+                            <select id="style">
+                                <option value="价值反问型">价值反问型</option>
+                                <option value="场景痛点型">场景痛点型</option>
+                                <option value="科普类型">科普类型</option>
+                                <option value="通用型">通用型（无特定风格）</option>
+                                <option value="对比测评型">对比测评型</option>
+                                <option value="故事叙述型">故事叙述型</option>
+                                <option value="踩雷避坑型">踩雷避坑型</option>
+                                <option value="人群定向型">人群定向型</option>
+                                <option value="颜值种草型">颜值种草型</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="productFeatures">产品特点 <span class="required">*</span></label>
+                            <textarea id="productFeatures" placeholder="请描述产品的核心特征和功能，比如：含有小分子透明质酸，深度补水，质地轻薄易吸收"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productAdvantages">产品优点 <span class="optional">（可选）</span></label>
+                            <textarea id="productAdvantages" placeholder="相比其他同类产品的优势，比如：性价比高、品牌历史悠久、获得专业认证等"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="userBenefits">对用户的好处 <span class="optional">（可选）</span></label>
+                            <textarea id="userBenefits" placeholder="用户使用后能获得的价值，比如：肌肤更水润、减少细纹、提升自信等"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="batch">批量生成</label>
+                            <select id="batch">
+                                <option value="1" selected>生成1篇</option>
+                                <option value="3">生成3篇</option>
+                                <option value="5">生成5篇</option>
+                                <option value="10">生成10篇</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- 图片上传区域 -->
+                    <div class="form-group full-width">
+                        <label>配图上传（可选）</label>
+                        <div class="ai-upload-area" onclick="document.getElementById('ai-file-input').click()">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 15V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V15M17 8L12 3M12 3L7 8M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <p>上传配图让AI创作更精准</p>
+                            <p class="upload-hint">支持JPG、PNG格式，最大10MB</p>
+                        </div>
+                        <input type="file" id="ai-file-input" style="display: none" multiple accept="image/*" onchange="handleAIFileUpload(this)">
+                        <div id="ai-image-preview" class="ai-image-preview"></div>
+                    </div>
+                    
+                    <div class="ai-form-actions">
+                        <button class="btn-secondary" onclick="resetAIForm()">重置</button>
+                        <button class="create-btn" onclick="startCreation()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M13 10V3L4 14H11L11 21L20 10H13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            开始创作
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 生成结果显示区域 -->
+                <div id="generation-results" class="generation-results" style="display: none;">
+                    <div class="results-header">
+                        <h3>生成结果</h3>
+                        <div class="results-controls">
+                            <div class="selection-controls">
+                                <input type="checkbox" id="select-all" onchange="toggleSelectAll(this.checked)">
+                                <label for="select-all">全选</label>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn-primary" onclick="saveSelectedToLibrary()" id="save-selected-btn" disabled>保存选中到内容库</button>
+                                <button class="btn-secondary" onclick="clearResults()">清空结果</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="results-container" class="results-container">
+                        <!-- 生成的内容将显示在这里 -->
+                    </div>
+                </div>
+                
+                <!-- 手动上传内容区域 -->
+                <div class="manual-upload-section">
+                    <div class="section-header collapsible-header" onclick="toggleManualUploadSection()">
+                        <div class="header-content">
+                            <h2>手动上传内容</h2>
+                            <p>上传已有的图文内容到内容库</p>
+                        </div>
+                        <div class="collapse-toggle">
+                            <svg class="collapse-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <div class="upload-form collapsible-content collapsed">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="title">标题</label>
+                                <input type="text" id="title" placeholder="输入图文标题">
+                            </div>
+                            <div class="form-group">
+                                <label for="tags">标签</label>
+                                <input type="text" id="tags" placeholder="输入标签，用逗号分隔">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="content">正文内容</label>
+                            <textarea id="content" placeholder="输入正文内容" rows="8"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>上传图片</label>
+                            <div class="upload-area" onclick="document.getElementById('file-input').click()">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M21 15V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V15M17 8L12 3M12 3L7 8M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <p>点击上传图片</p>
+                                <p class="upload-hint">支持JPG、PNG格式，最大10MB</p>
+                            </div>
+                            <input type="file" id="file-input" style="display: none" multiple accept="image/*" onchange="handleFileUpload(this)">
+                        </div>
+                        
+                        <div id="image-preview" class="image-preview"></div>
+                        
+                        <div class="form-actions">
+                            <button class="btn-secondary" onclick="resetForm()">重置</button>
+                            <button class="btn-primary" onclick="saveContent()">保存到内容库</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 文生图区域 -->
+            <div class="content-section" id="text-to-image">
+                <div class="section-header">
+                    <h1>文生图</h1>
+                    <p>创建图片内容，支持文字生成和图片参考两种模式</p>
+                </div>
+
+                <!-- 模式切换标签 -->
+                <div class="generation-mode-tabs">
+                    <div class="mode-tab-header">
+                        <button class="mode-tab-btn active" onclick="switchGenerationMode('text')" data-mode="text">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M16 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M16 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M10 9H9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            文生图
+                        </button>
+                        <button class="mode-tab-btn" onclick="switchGenerationMode('image')" data-mode="image">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="9" cy="9" r="2" stroke="currentColor" stroke-width="2"/>
+                                <path d="M21 15L16 10L5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            图生图
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 文字生成模式 -->
+                <div class="creation-form" id="text-generation-mode">
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="t2i-text">输入文字</label>
+                            <textarea id="t2i-text" placeholder="输入要转换成图片的文字" rows="6"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-row template-controls-layout">
+                        <div class="form-group template-section">
+                            <label for="template-category">图片模板</label>
+                            <div class="template-selector">
+                                <!-- 分类标签 -->
+                                <div class="template-categories">
+                                    <button type="button" class="category-btn active" data-category="favorites">
+                                        ⭐ 常用模板
+                                    </button>
+
+                                    <button type="button" class="category-btn" data-category="sticky">
+                                        📝 便签纸
+                                    </button>
+                                    <button type="button" class="category-btn" data-category="cute">
+                                        🎀 可爱风格
+                                    </button>
+                                    <button type="button" class="category-btn" data-category="nature">
+                                        🌿 自然风光
+                                    </button>
+                                    <button type="button" class="category-btn" data-category="life">
+                                        ☕ 生活场景
+                                    </button>
+                                    <button type="button" class="category-btn" data-category="magic">
+                                        ✨ 魔幻梦想
+                                    </button>
+                                    <button type="button" class="category-btn" data-category="artistic">
+                                        🎨 艺术设计
+                                    </button>
+                                    <button type="button" class="category-btn" data-category="tech">
+                                        🔮 科技主题
+                                    </button>
+                                </div>
+                                
+                                <!-- 隐藏的实际选择器 -->
+                                <select id="t2i-template" style="display: none;">
+                                    <option value="sticky-note-yellow" selected>黄色便签</option>
+                                </select>
+                                
+                                <!-- 模板网格 -->
+                                <div class="template-grid">
+
+                                    
+                                    <!-- 便签纸 -->
+                                    <div class="template-category-content" data-category="sticky" style="display: none;">
+                                        <div class="template-item" data-template="sticky-note-yellow">
+                                            <div class="template-preview sticky-yellow-preview"></div>
+                                            <span>📝 黄色便签</span>
+                                        </div>
+                                        <div class="template-item" data-template="sticky-note-green">
+                                            <div class="template-preview sticky-green-preview"></div>
+                                            <span>🌿 绿色便签</span>
+                                        </div>
+                                        <div class="template-item" data-template="sticky-note-blue">
+                                            <div class="template-preview sticky-blue-preview"></div>
+                                            <span>💙 蓝色便签</span>
+                                        </div>
+                                        <div class="template-item" data-template="sticky-note-purple">
+                                            <div class="template-preview sticky-purple-preview"></div>
+                                            <span>💜 紫色便签</span>
+                                        </div>
+                                        <div class="template-item" data-template="sticky-note-orange">
+                                            <div class="template-preview sticky-orange-preview"></div>
+                                            <span>🧡 橙色便签</span>
+                                        </div>
+                                        <div class="template-item" data-template="sticky-note-coral">
+                                            <div class="template-preview sticky-coral-preview"></div>
+                                            <span>🪸 珊瑚便签</span>
+                                        </div>
+                                        <div class="template-item" data-template="sticky-note-lavender">
+                                            <div class="template-preview sticky-lavender-preview"></div>
+                                            <span>💐 薰衣草便签</span>
+                                        </div>
+                                        <div class="template-item" data-template="sticky-note-peach">
+                                            <div class="template-preview sticky-peach-preview"></div>
+                                            <span>🍑 桃色便签</span>
+                                        </div>
+                                        <div class="template-item" data-template="notebook-paper">
+                                            <div class="template-preview notebook-preview"></div>
+                                            <span>📖 笔记本纸</span>
+                                        </div>
+                                        <div class="template-item" data-template="memo-pink">
+                                            <div class="template-preview memo-pink-preview"></div>
+                                            <span>📄 粉色备忘</span>
+                                        </div>
+                                        <div class="template-item" data-template="highlight-orange">
+                                            <div class="template-preview highlight-preview"></div>
+                                            <span>🔍 橙色强调</span>
+                                        </div>
+                                        <div class="template-item" data-template="study-focus">
+                                            <div class="template-preview study-preview"></div>
+                                            <span>🎯 学习重点</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 可爱风格 -->
+                                    <div class="template-category-content" data-category="cute" style="display: none;">
+                                        <div class="template-item" data-template="pastel-pink">
+                                            <div class="template-preview pastel-pink-preview"></div>
+                                            <span>马卡龙粉</span>
+                                        </div>
+                                        <div class="template-item" data-template="pastel-mint">
+                                            <div class="template-preview pastel-mint-preview"></div>
+                                            <span>马卡龙薄荷</span>
+                                        </div>
+                                        <div class="template-item" data-template="polka-dots">
+                                            <div class="template-preview polka-dots-preview"></div>
+                                            <span>可爱波点</span>
+                                        </div>
+                                        <div class="template-item" data-template="candy-stripes">
+                                            <div class="template-preview candy-stripes-preview"></div>
+                                            <span>糖果条纹</span>
+                                        </div>
+                                        <div class="template-item" data-template="hearts">
+                                            <div class="template-preview hearts-preview"></div>
+                                            <span>爱心撒花</span>
+                                        </div>
+                                        <div class="template-item" data-template="bubbles">
+                                            <div class="template-preview bubbles-preview"></div>
+                                            <span>泡泡梦幻</span>
+                                        </div>
+                                        <div class="template-item" data-template="gingham">
+                                            <div class="template-preview gingham-preview"></div>
+                                            <span>格纹奶油</span>
+                                        </div>
+                                        <div class="template-item" data-template="kawaii-clouds">
+                                            <div class="template-preview kawaii-clouds-preview"></div>
+                                            <span>萌系云朵</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 自然风光 -->
+                                    <div class="template-category-content" data-category="nature" style="display: none;">
+                                        <div class="template-item" data-template="forest-fresh">
+                                            <div class="template-preview forest-preview"></div>
+                                            <span>清新森林</span>
+                                        </div>
+                                        <div class="template-item" data-template="ocean-waves">
+                                            <div class="template-preview ocean-preview"></div>
+                                            <span>🌊 海浪涌动</span>
+                                        </div>
+                                        <div class="template-item" data-template="golden-autumn">
+                                            <div class="template-preview autumn-preview"></div>
+                                            <span>🍂 金秋落叶</span>
+                                        </div>
+                                        <div class="template-item" data-template="sunset-glow">
+                                            <div class="template-preview sunset-preview"></div>
+                                            <span>夕阳橙光</span>
+                                        </div>
+                                        <div class="template-item" data-template="cherry-blossom">
+                                            <div class="template-preview cherry-preview"></div>
+                                            <span>🌺 樱花飞舞</span>
+                                        </div>
+                                        <div class="template-item" data-template="flower-garden">
+                                            <div class="template-preview flower-preview"></div>
+                                            <span>🌸 花园盛开</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 生活场景 -->
+                                    <div class="template-category-content" data-category="life" style="display: none;">
+                                        <div class="template-item" data-template="coffee-time">
+                                            <div class="template-preview coffee-preview"></div>
+                                            <span>☕ 咖啡时光</span>
+                                        </div>
+                                        <div class="template-item" data-template="book-wisdom">
+                                            <div class="template-preview book-preview"></div>
+                                            <span>📚 书香智慧</span>
+                                        </div>
+                                        <div class="template-item" data-template="music-vibes">
+                                            <div class="template-preview music-preview"></div>
+                                            <span>🎵 音乐律动</span>
+                                        </div>
+                                        <div class="template-item" data-template="travel-dream">
+                                            <div class="template-preview travel-preview"></div>
+                                            <span>✈️ 旅行梦想</span>
+                                        </div>
+                                        <div class="template-item" data-template="celebration-party">
+                                            <div class="template-preview celebration-preview"></div>
+                                            <span>🎉 庆祝派对</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 魔幻梦想 -->
+                                    <div class="template-category-content" data-category="magic" style="display: none;">
+                                        <div class="template-item" data-template="rainbow-soft">
+                                            <div class="template-preview rainbow-soft-preview"></div>
+                                            <span>柔和彩虹</span>
+                                        </div>
+                                        <div class="template-item" data-template="rainbow-magic">
+                                            <div class="template-preview rainbow-magic-preview"></div>
+                                            <span>🌈 彩虹魔法</span>
+                                        </div>
+                                        <div class="template-item" data-template="star-sky">
+                                            <div class="template-preview star-preview"></div>
+                                            <span>星星夜空</span>
+                                        </div>
+                                        <div class="template-item" data-template="space-galaxy">
+                                            <div class="template-preview space-preview"></div>
+                                            <span>🌟 银河星系</span>
+                                        </div>
+                                        <div class="template-item" data-template="fire-passion">
+                                            <div class="template-preview fire-preview"></div>
+                                            <span>🔥 热情燃烧</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 艺术设计 -->
+                                    <div class="template-category-content" data-category="artistic" style="display: none;">
+                                        <div class="template-item" data-template="watercolor-art">
+                                            <div class="template-preview watercolor-preview"></div>
+                                            <span>🎨 水彩艺术</span>
+                                        </div>
+                                        <div class="template-item" data-template="sketch-draw">
+                                            <div class="template-preview sketch-preview"></div>
+                                            <span>✏️ 素描画册</span>
+                                        </div>
+                                        <div class="template-item" data-template="neon-glow">
+                                            <div class="template-preview neon-preview"></div>
+                                            <span>💫 霓虹发光</span>
+                                        </div>
+                                        <div class="template-item" data-template="marble-texture">
+                                            <div class="template-preview marble-preview"></div>
+                                            <span>🏛️ 大理石纹</span>
+                                        </div>
+                                        <div class="template-item" data-template="vintage-paper">
+                                            <div class="template-preview vintage-preview"></div>
+                                            <span>📜 复古纸张</span>
+                                        </div>
+                                        <div class="template-item" data-template="cyberpunk-city">
+                                            <div class="template-preview cyberpunk-preview"></div>
+                                            <span>🏙️ 赛博朋克</span>
+                                        </div>
+                                        <div class="template-item" data-template="origami-fold">
+                                            <div class="template-preview origami-preview"></div>
+                                            <span>🗾 折纸艺术</span>
+                                        </div>
+                                        <div class="template-item" data-template="glass-effect">
+                                            <div class="template-preview glass-preview"></div>
+                                            <span>🔮 玻璃质感</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 科技主题 -->
+                                    <div class="template-category-content" data-category="tech" style="display: none;">
+                                        <div class="template-item" data-template="circuit-board">
+                                            <div class="template-preview circuit-preview"></div>
+                                            <span>⚡ 电路板</span>
+                                        </div>
+                                        <div class="template-item" data-template="hologram-display">
+                                            <div class="template-preview hologram-preview"></div>
+                                            <span>📱 全息显示</span>
+                                        </div>
+                                        <div class="template-item" data-template="matrix-code">
+                                            <div class="template-preview matrix-preview"></div>
+                                            <span>💻 矩阵代码</span>
+                                        </div>
+                                        <div class="template-item" data-template="data-stream">
+                                            <div class="template-preview data-stream-preview"></div>
+                                            <span>📊 数据流</span>
+                                        </div>
+                                    </div>
+
+                                    
+                                    <!-- 常用模板 -->
+                                    <div class="template-category-content" data-category="favorites">
+                                        <div class="favorites-empty" style="display: block;">
+                                            <div class="empty-state">
+                                                <div class="empty-icon">⭐</div>
+                                                <h3>还没有常用模板</h3>
+                                                <p>点击其他分类中模板右上角的 ❤️ 按钮，将喜欢的模板添加到这里</p>
+                                            </div>
+                                        </div>
+                                        <div class="favorites-content">
+                                            <!-- 动态生成的常用模板会出现在这里 -->
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="controls-panel">
+                            <div class="form-group">
+                                <label for="t2i-size">尺寸</label>
+                                <select id="t2i-size">
+                                    <option value="1080x1080">1080x1080</option>
+                                    <option value="1280x720">1280x720</option>
+                                    <option value="1080x1440" selected>1080x1440 (3:4)</option>
+                                    <option value="1080x1920">1080x1920</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="t2i-align">对齐</label>
+                                <select id="t2i-align">
+                                    <option value="center" selected>居中</option>
+                                    <option value="left">左对齐</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="t2i-font-size">字体大小 (<span id="font-size-value">100</span>%)</label>
+                                <input type="range" id="t2i-font-size" min="50" max="200" value="100" step="10" style="width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn-secondary" onclick="resetT2I()">重置</button>
+                        <button class="btn-primary" onclick="generateTextImage()">生成图片</button>
+                        <button class="btn-info" id="t2i-download" onclick="downloadTextImage()" disabled>下载PNG</button>
+                    </div>
+
+                    <div class="t2i-preview" style="margin-top:16px; display:flex; gap:16px; align-items:flex-start;">
+                        <canvas id="t2i-canvas" width="1080" height="1080" style="width:360px;height:360px;background:#fff;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.08);"></canvas>
+                        <div style="color:#666;line-height:1.6;">
+                            <div>预览为缩放显示，下载为原始分辨率。</div>
+                            <div>适用于封面图、分享图、海报等场景。</div>
+                        </div>
+                    </div>
+
+                    <!-- 图片库区域 -->
+                    <div class="image-gallery-section" style="margin-top: 32px;">
+                        <div class="gallery-header">
+                            <h3>图片库</h3>
+                            <div class="gallery-actions">
+                                <button class="btn-primary" onclick="saveImageToText()" id="save-to-text-btn" style="display: none;" disabled>
+                                    📎 保存为此文案配图
+                                </button>
+                                <button class="btn-primary" onclick="saveCurrentImageToGallery()" id="save-to-gallery-btn" disabled>
+                                    💾 保存到图片库
+                                </button>
+                                <button class="btn-secondary" onclick="clearImageGallery()" id="clear-gallery-btn">
+                                    🗑️ 清空图片库
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="image-gallery-content">
+                            <div class="gallery-empty" id="gallery-empty" style="display: block;">
+                                <div class="empty-state">
+                                    <div class="empty-icon">🖼️</div>
+                                    <h4>图片库为空</h4>
+                                    <p>生成图片后，点击"保存到图片库"按钮将图片添加到这里</p>
+                                </div>
+                            </div>
+                            <div class="gallery-grid" id="gallery-grid" style="display: none;">
+                                <!-- 保存的图片会显示在这里 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 图片参考生成模式 -->
+                <div class="creation-form" id="image-generation-mode" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="reference-image-upload">上传参考图片</label>
+                            <div class="image-upload-area" id="image-upload-area">
+                                <div class="upload-placeholder" id="upload-placeholder">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                                        <circle cx="9" cy="9" r="2" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M21 15L16 10L5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <h4>拖拽图片到这里或点击选择</h4>
+                                    <p>支持 JPG、PNG、GIF 格式，最大 10MB</p>
+                                    <button type="button" class="btn-secondary" onclick="triggerImageUpload()">选择文件</button>
+                                </div>
+                                <div class="uploaded-image-preview" id="uploaded-image-preview" style="display: none;">
+                                    <img id="reference-image-preview" src="" alt="参考图片">
+                                    <div class="image-actions">
+                                        <button class="btn-secondary" onclick="removeReferenceImage()">移除图片</button>
+                                        <button class="btn-info" onclick="analyzeReferenceImage()">手动分析图片</button>
+                                    </div>
+                                </div>
+                                <input type="file" id="reference-image-input" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row ai-prompt-section" style="display: none;">
+                        <div class="form-group full-width">
+                            <label for="ai-prompt">AI提示词</label>
+                            
+                            <!-- 快速提示词模板 -->
+                            <div class="quick-prompts-container">
+                                <div class="quick-prompts-header">
+                                    <span>快速模板：</span>
+                                    <select id="prompt-template" onchange="applyPromptTemplate()">
+                                        <option value="">选择预设模板</option>
+                                        <option value="illustration">🎨 插画风格</option>
+                                        <option value="photography">📷 摄影写实</option>
+                                        <option value="cartoon">🦄 卡通可爱</option>
+                                        <option value="cyberpunk">🚀 科技未来</option>
+                                        <option value="watercolor">🌸 水彩艺术</option>
+                                        <option value="oilpainting">🖼️ 油画质感</option>
+                                        <option value="minimalist">⚪ 极简风格</option>
+                                        <option value="anime">🌟 二次元</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <textarea id="ai-prompt" placeholder="描述您想要生成的图片内容，或选择快速模板，或点击"分析图片"自动生成提示词" rows="4"></textarea>
+                            <small class="help-text">💡 可以手动输入提示词，选择预设模板，或基于上传图片自动生成</small>
+                        </div>
+                    </div>
+
+                    <!-- AI分析结果显示区域 -->
+                    <div id="analysis-result-container" class="analysis-result-container" style="display: none;">
+                        <div class="analysis-header">
+                            <h5>🤖 AI图片分析结果</h5>
+                            <button type="button" class="btn-collapse" onclick="toggleAnalysisResult()">
+                                <i class="icon">▼</i>
+                            </button>
+                        </div>
+                        <div id="analysis-result-content" class="analysis-content">
+                            <div id="analysis-text" class="analysis-text"></div>
+                            <div class="analysis-actions">
+                                <button type="button" class="btn-secondary btn-small" onclick="copyAnalysisResult()">复制分析结果</button>
+                                <button type="button" class="btn-info btn-small" onclick="useAnalysisAsPrompt()">使用为提示词</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row generation-settings">
+                        <div class="form-group">
+                            <label for="image-size">图片尺寸</label>
+                            <select id="image-size">
+                                <option value="1024x1024">正方形 (1024×1024)</option>
+                                <option value="1080x1440" selected>3:4竖屏 (1080×1440)</option>
+                                <option value="1440x1080">4:3横屏 (1440×1080)</option>
+                                <option value="1024x1792">竖屏 (1024×1792)</option>
+                                <option value="1792x1024">横屏 (1792×1024)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="guidance-scale">创作强度</label>
+                            <div class="range-input">
+                                <input type="range" id="guidance-scale" min="1" max="10" value="3" step="0.5">
+                                <span class="range-value" id="guidance-scale-value">3.0</span>
+                            </div>
+                            <small class="help-text">数值越高，生成结果越符合提示词</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="similarity-level">相似度</label>
+                            <div class="range-input">
+                                <input type="range" id="similarity-level" min="0.1" max="1.0" value="0.7" step="0.1">
+                                <span class="range-value" id="similarity-level-value">0.7</span>
+                            </div>
+                            <small class="help-text">与参考图片的相似程度</small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="add-watermark" checked>
+                                <span class="checkbox-text">添加水印</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn-secondary" onclick="resetImageGeneration()">重置</button>
+                        <button class="btn-primary" onclick="generateImageFromReference()" id="generate-from-reference-btn" disabled>智能分析并生成图片</button>
+                    </div>
+
+                    <!-- 生成进度和结果 -->
+                    <div class="generation-progress" id="generation-progress" style="display: none;">
+                        <div class="progress-header">
+                            <h4>正在生成图片...</h4>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="ai-generation-progress"></div>
+                        </div>
+                        <div class="progress-info">
+                            <span id="generation-status">准备中...</span>
+                        </div>
+                    </div>
+
+                    <!-- AI生成结果展示 -->
+                    <div class="ai-generation-results" id="ai-generation-results" style="display: none;">
+                        <div class="results-header">
+                            <h4>生成结果</h4>
+                            <div class="results-actions">
+                                <button class="btn-info" onclick="regenerateImage()">重新生成</button>
+                                <button class="btn-primary" onclick="saveGeneratedImage()">保存到图片库</button>
+                            </div>
+                        </div>
+                        <div class="generated-images-grid" id="generated-images-grid">
+                            <!-- 生成的图片将显示在这里 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 发布管理区域 -->
+            <div class="content-section" id="publish-management">
+                <div class="publish-management-container">
+                    <div class="section-header">
+                        <h1>发布管理</h1>
+                        <p>从内容库选择多图文，结合账号/分组进行批量发布与排期</p>
+                    </div>
+
+                    <div class="publish-layout">
+                        <!-- 左侧：内容选择 -->
+                        <div class="panel left-panel">
+                            <div class="panel-header">
+                                <h3>选择内容</h3>
+                                <div class="panel-actions">
+                                    <input type="text" id="publish-content-search" placeholder="搜索内容..." onkeyup="filterPublishContents(this.value)">
+                                </div>
+                            </div>
+                            <div class="panel-body" id="publish-content-list">
+                                <div class="empty-tip">从内容库加载内容中...</div>
+                            </div>
+                        </div>
+
+                                                <!-- 中间：账号选择 -->
+                        <div class="panel middle-panel">
+                            <div class="panel-header">
+                                <h3>选择账号</h3>
+                                <div class="panel-actions">
+                                    <select id="publish-group-filter" onchange="filterPublishAccounts()">
+                                        <option value="">全部分组</option>
+                                    </select>
+                                    <input type="text" id="publish-account-search" placeholder="搜索账号名称、备注..." onkeyup="filterPublishAccounts()">
+                                </div>
+                            </div>
+                            <div class="panel-body" id="publish-account-list">
+                                <div class="empty-tip">从账号管理加载账号中...</div>
+                            </div>
+                        </div>
+
+                        <!-- 右侧：发布设置 -->
+                        <div class="panel right-panel">
+                            <div class="panel-header">
+                                <h3>发布设置</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="form-group">
+<label>发布时间</label>
+                                    <div class="radio-group">
+                                        <label><input type="radio" name="publish-time-mode" value="now" checked onchange="toggleScheduleOptions(false)"> 立即发布</label>
+                                        <label><input type="radio" name="publish-time-mode" value="schedule" onchange="toggleScheduleOptions(true)"> 定时发布</label>
+                                    </div>
+                                </div>
+                                <div class="form-group" id="schedule-time-group" style="display:none;">
+                                    <label for="schedule-time">选择时间</label>
+                                    <input type="datetime-local" id="schedule-time">
+                                </div>
+                                <div class="form-group">
+                                    <label for="concurrency">并发数</label>
+                                    <select id="concurrency">
+                                        <option value="1" selected>1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="rate-limit">速率限制（每账号/分钟）</label>
+                                    <input type="number" id="rate-limit" min="0" placeholder="可留空">
+                                </div>
+
+                                <div class="form-actions">
+<button class="btn-secondary" onclick="clearPublishSelections()">清空选择</button>
+                                    <button class="btn-primary" onclick="createPublishTasks()">加入发布队列</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 队列与控制 -->
+                    <div class="queue-section">
+                        <div class="queue-header">
+                            <h3>发布队列</h3>
+                            <div class="queue-actions">
+                                <button class="btn-info" onclick="startQueueProcessing()">开始执行</button>
+                                <button class="btn-secondary" onclick="refreshPublishQueue()">刷新</button>
+                                <button class="btn-danger" onclick="clearPublishQueue()">清空队列</button>
+                            </div>
+                        </div>
+                        <div class="queue-table-container">
+                            <table class="account-table">
+                                <thead>
+                                    <tr>
+                                        <th>任务ID</th>
+                                        <th>账号</th>
+                                        <th>平台</th>
+                                        <th>内容</th>
+                                        <th>计划时间</th>
+                                        <th>状态</th>
+                                        <th>结果</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="publish-queue-body">
+                                    <tr><td colspan="8" class="empty-cell">暂无任务</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 内容库区域 -->
+            <div class="content-section" id="content-library">
+                <div class="content-library">
+                    <div class="library-header">
+                        <h3>内容库 (0)</h3>
+                        <div class="library-actions">
+                            <input type="text" id="search-input" placeholder="搜索内容..." onkeyup="searchLibrary(this.value)">
+                            <button class="btn-secondary" onclick="clearLibrary()">清空库</button>
+                        </div>
+                    </div>
+                    <div class="library-stats">
+                        <span>AI生成: 0</span>
+                        <span>手动创建: 0</span>
+                        <span>总字数: 0</span>
+                    </div>
+                    <div class="library-content" id="library-content">
+                        <div class="empty-library">📝 内容库为空，创建第一篇内容吧！</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 浏览器指纹配置区域 -->
+            <div class="content-section" id="fingerprint-config">
+                <div class="fingerprint-config-container">
+                    <div class="section-header">
+                        <h1>浏览器指纹配置</h1>
+                        <p>生成真实的浏览器指纹参数，提升账号安全性</p>
+                    </div>
+
+                    <!-- 配置参数区域 -->
+                    <div class="config-parameters">
+                        <div class="parameter-row">
+                            <div class="parameter-group">
+                                <label for="device-type">设备性能级别</label>
+                                <select id="device-type">
+                                    <option value="high">高端设备</option>
+                                    <option value="medium" selected>中端设备</option>
+                                    <option value="low">低端设备</option>
+                                </select>
+                                <small>选择设备性能级别影响CPU、内存、GPU等硬件参数</small>
+                            </div>
+                            
+                            <div class="parameter-group">
+                                <label for="os-type">操作系统</label>
+                                <select id="os-type">
+                                    <option value="windows" selected>Windows</option>
+                                    <option value="macos">macOS</option>
+                                    <option value="linux">Linux</option>
+                                </select>
+                                <small>选择目标操作系统类型</small>
+                            </div>
+                            
+                            <div class="parameter-group">
+                                <label for="browser-type">浏览器类型</label>
+                                <select id="browser-type">
+                                    <option value="auto" selected>自动选择</option>
+                                    <option value="chrome">Chrome</option>
+                                    <option value="firefox">Firefox</option>
+                                    <option value="safari">Safari</option>
+                                    <option value="edge">Edge</option>
+                                </select>
+                                <small>选择浏览器类型或让系统自动选择</small>
+                            </div>
+                        </div>
+                        
+                        <div class="parameter-row">
+                            <div class="parameter-group">
+                                <label for="locale">地域设置</label>
+                                <select id="locale">
+                                    <option value="zh-CN" selected>中国大陆</option>
+                                    <option value="en-US">美国</option>
+                                    <option value="en-GB">英国</option>
+                                    <option value="ja-JP">日本</option>
+                                    <option value="de-DE">德国</option>
+                                    <option value="fr-FR">法国</option>
+                                </select>
+                                <small>影响时区、语言、地理位置等参数</small>
+                            </div>
+                            
+                            <div class="parameter-group">
+                                <label for="fingerprint-strength">指纹强度</label>
+                                <select id="fingerprint-strength">
+                                    <option value="low">低强度</option>
+                                    <option value="medium" selected>中等强度</option>
+                                    <option value="high">高强度</option>
+                                </select>
+                                <small>控制指纹参数的变化程度</small>
+                            </div>
+                            
+                            <div class="parameter-group">
+                                <label for="export-format">导出格式</label>
+                                <select id="export-format">
+                                    <option value="json" selected>JSON</option>
+                                    <option value="yaml">YAML</option>
+                                    <option value="env">环境变量</option>
+                                </select>
+                                <small>选择配置文件的导出格式</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 操作按钮区域 -->
+                    <div class="config-actions">
+                        <button id="generate-config-btn" class="btn-primary">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 4L20 20M20 4L4 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            生成指纹配置
+                        </button>
+                        
+                        <button id="export-config-btn" class="btn-secondary">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 15V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V15M7 10L12 15L17 10M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            导出配置
+                        </button>
+                        
+                        <button id="import-config-btn" class="btn-secondary">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 15V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V15M17 8L12 3L7 8M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            导入配置
+                        </button>
+                    </div>
+
+                    <!-- 强度信息显示 -->
+                    <div class="strength-info-card">
+                        <div id="strength-info">
+                            <div class="strength-name">中等强度</div>
+                            <div class="strength-description">适度参数变化，平衡性能与隐私</div>
+                        </div>
+                    </div>
+
+                    <!-- 配置结果显示区域 -->
+                    <div class="config-results">
+                        <!-- 配置摘要 -->
+                        <div class="result-card">
+                            <h3>配置摘要</h3>
+                            <div id="fingerprint-summary">
+                                <div class="summary-placeholder">点击"生成指纹配置"开始生成</div>
+                            </div>
+                        </div>
+
+                        <!-- 详细配置 -->
+                        <div class="result-tabs">
+                            <div class="tab-header">
+                                <button class="tab-btn active" onclick="switchTab('basic')">基础信息</button>
+                                <button class="tab-btn" onclick="switchTab('hardware')">硬件信息</button>
+                                <button class="tab-btn" onclick="switchTab('locale')">地域信息</button>
+                                <button class="tab-btn" onclick="switchTab('webgl')">WebGL信息</button>
+                            </div>
+                            
+                            <div class="tab-content">
+                                <!-- 基础信息标签 -->
+                                <div class="tab-panel active" id="basic-tab">
+                                    <div class="info-item">
+                                        <label>User-Agent</label>
+                                        <div class="info-value" id="generated-useragent">
+                                            <span class="placeholder">等待生成...</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="info-item">
+                                        <label>屏幕分辨率</label>
+                                        <div class="info-value" id="generated-screen">
+                                            <span class="placeholder">等待生成...</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 硬件信息标签 -->
+                                <div class="tab-panel" id="hardware-tab">
+                                    <div class="info-item">
+                                        <label>硬件配置</label>
+                                        <div class="info-value" id="generated-hardware">
+                                            <span class="placeholder">等待生成...</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 地域信息标签 -->
+                                <div class="tab-panel" id="locale-tab">
+                                    <div class="info-item">
+                                        <label>地域设置</label>
+                                        <div class="info-value" id="generated-locale">
+                                            <span class="placeholder">等待生成...</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- WebGL信息标签 -->
+                                <div class="tab-panel" id="webgl-tab">
+                                    <div class="info-item">
+                                        <label>WebGL信息</label>
+                                        <div class="info-value" id="generated-webgl">
+                                            <span class="placeholder">等待生成...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 账号管理区域 -->
+            <div class="content-section" id="account-management">
+                <div class="account-management-container">
+                    <div class="section-header">
+                        <h1>账号管理</h1>
+                        <p>管理您的各平台账号配置</p>
+                    </div>
+
+                    <!-- 操作栏 -->
+                    <div class="account-toolbar">
+                        <div class="toolbar-left">
+                            <button class="btn-primary create-account-btn" onclick="openCreateAccountModal()">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                创建窗口
+                            </button>
+                            <div class="filter-group">
+                                <select id="group-filter" onchange="filterByGroup(this.value)">
+                                    <option value="">全部</option>
+                                    <!-- 动态生成分组选项 -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="toolbar-right">
+                            <div class="search-box">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M21 21L15 15L21 21ZM17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <input type="text" placeholder="高级搜索" onkeyup="searchAccounts(this.value)">
+                            </div>
+
+                            <button class="btn-secondary more-actions-btn" onclick="showMoreActions()">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M9 9H15M9 13H15M9 17H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                更多操作
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 账号列表表格 -->
+                    <div class="account-table-container">
+                        <table class="account-table">
+                            <thead>
+                                <tr>
+                                    <th class="checkbox-col">
+                                        <input type="checkbox" id="select-all-accounts" onchange="toggleSelectAllAccounts(this.checked)">
+                                    </th>
+                                    <th class="sequence-col">序号 <svg class="sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 19V5M5 12L12 5L19 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></th>
+                                    <th class="group-col">分组</th>
+                                    <th class="window-name-col">窗口名称 <svg class="sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 19V5M5 12L12 5L19 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></th>
+                                    <th class="platform-col">账号平台</th>
+                                    <th class="note-col">备注</th>
+                                    <th class="create-time-col">创建时间 <svg class="sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 19V5M5 12L12 5L19 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></th>
+                                    <th class="config-col">配置</th>
+                                    <th class="action-col">操作</th>
+                                    <th class="status-col">状态</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody id="account-table-body">
+                                <!-- 账号数据将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 分页器 -->
+                    <div class="pagination-container">
+                        <div class="pagination-info">
+                            <span>共 <span id="total-accounts">3</span> 条记录</span>
+                        </div>
+                        <div class="pagination">
+                            <button class="page-btn" onclick="goToPage('first')" title="首页">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M11 19L4 12L11 5M19 19L12 12L19 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <button class="page-btn" onclick="goToPage('prev')" title="上一页">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <span class="page-numbers">
+                                <button class="page-btn active">1</button>
+                            </span>
+                            <button class="page-btn" onclick="goToPage('next')" title="下一页">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <button class="page-btn" onclick="goToPage('last')" title="末页">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M13 19L20 12L13 5M5 19L12 12L5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="page-size-selector">
+                            <select onchange="changePageSize(this.value)">
+                                <option value="10">10</option>
+                                <option value="20" selected>20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            <span>条/页</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 爆款拆解区域 -->
+            <div class="content-section" id="text-analysis">
+                <div class="text-analysis-container">
+                    <div class="section-header">
+                        <h1>爆款拆解</h1>
+                        <p>通过AI分析爆款文案结构，重新生成优质内容</p>
+                    </div>
+
+                    <!-- 选项卡导航 -->
+                    <div class="analysis-tabs">
+                        <div class="tab-nav">
+                            <button class="analysis-tab-btn active" onclick="switchAnalysisTab('manual')" data-tab="manual">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V18C2 18.5304 2.21071 19.0391 2.58579 19.4142C2.96086 19.7893 3.46957 20 4 20H16C16.5304 20 17.0391 19.7893 17.4142 19.4142C17.7893 19.0391 18 18.5304 18 18V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                智能拆解
+                            </button>
+                            <button class="analysis-tab-btn" onclick="switchAnalysisTab('scraped')" data-tab="scraped">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12Z" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M8 12L12 16L16 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12 8V16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                智能抓取
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 选项卡内容区域 -->
+                    <div class="analysis-tab-content">
+                        <!-- 手动拆解选项卡 -->
+                        <div class="analysis-tab-panel active" id="manual-tab">
+                            <!-- 文案输入区域 -->
+                    <div class="text-input-section">
+                        <!-- 爆款文案1 -->
+                        <div class="text-input-item">
+                            <h3>爆款文案 1</h3>
+                            <div class="text-input-content">
+                                <textarea id="text-input-1" placeholder="输入爆款文案内容" rows="6"></textarea>
+
+                            </div>
+                        </div>
+
+                        <!-- 爆款文案2 -->
+                        <div class="text-input-item">
+                            <h3>爆款文案 2</h3>
+                            <div class="text-input-content">
+                                <textarea id="text-input-2" placeholder="输入爆款文案内容" rows="6"></textarea>
+
+                            </div>
+                        </div>
+
+                        <!-- 爆款文案3 -->
+                        <div class="text-input-item">
+                            <h3>爆款文案 3</h3>
+                            <div class="text-input-content">
+                                <textarea id="text-input-3" placeholder="输入爆款文案内容" rows="6"></textarea>
+
+                            </div>
+                        </div>
+
+                        <!-- 操作按钮 -->
+                        <div class="text-input-actions">
+                            <button class="btn-secondary" onclick="addMoreText()">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                添加文案
+                            </button>
+
+                            <button class="btn-primary" onclick="startTextAnalysis()">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M9.663 17H4.5C3.11929 17 2 15.8807 2 14.5C2 13.1193 3.11929 12 4.5 12C4.5 8.96243 6.96243 6.5 10 6.5C13.0376 6.5 15.5 8.96243 15.5 12V13H16.5C17.8807 13 19 14.1193 19 15.5C19 16.8807 17.8807 18 16.5 18H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                开始拆解
+                            </button>
+                        </div>
+                        </div>
+                        <!-- 手动拆解选项卡结束 -->
+                    </div>
+
+                    <!-- 智能抓取选项卡 -->
+                    <div class="analysis-tab-panel" id="scraped-tab">
+                        <!-- 抓取内容展示区域 -->
+                    <div class="scraped-content-section" id="scraped-content-section">
+                        <div class="section-header">
+                            <h2>📊 实时抓取内容</h2>
+                            <p>查看抓取到的爆款内容和智能分析结果</p>
+                        </div>
+
+                        <!-- 小红书搜索区域 -->
+                        <div class="xiaohongshu-search-section">
+                            <div class="search-input-group">
+                                <label for="xiaohongshu-search-input">小红书搜索关键词：</label>
+                                <input type="text" id="xiaohongshu-search-input" placeholder="输入要在小红书搜索的关键词..." />
+                            </div>
+                        </div>
+                        
+                        <!-- 小红书探索按钮 -->
+                        <div class="scraped-filters">
+
+                            <div class="filter-actions">
+                                <button class="btn-info" onclick="openFirstAccountBrowser()">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="3" y="4" width="18" height="12" rx="2" stroke="currentColor" stroke-width="2"/>
+                                        <circle cx="8" cy="8" r="1" fill="currentColor"/>
+                                        <circle cx="12" cy="8" r="1" fill="currentColor"/>
+                                        <circle cx="16" cy="8" r="1" fill="currentColor"/>
+                                        <path d="m9 16 2-2 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    开始抓取
+                                </button>
+
+                            </div>
+                        </div>
+                        
+                        <!-- 抓取内容展示区域 -->
+                        <div class="scraped-content-display" id="scraped-content-display">
+                            <div class="empty-state">
+                                <div class="empty-icon">📝</div>
+                                <h4>暂无抓取内容</h4>
+                                <p>请点击"打开小红书探索"按钮启动内容抓取，或等待自动抓取完成</p>
+
+                            </div>
+                        </div>
+                        
+                        <!-- 分页控制 -->
+                        <div class="scraped-pagination" id="scraped-pagination" style="display: none;">
+                            <button class="pagination-btn" onclick="goToScrapedPage('prev')">上一页</button>
+                            <span class="pagination-info">
+                                第 <span id="current-scraped-page">1</span> 页，共 <span id="total-scraped-pages">1</span> 页
+                            </span>
+                            <button class="pagination-btn" onclick="goToScrapedPage('next')">下一页</button>
+                        </div>
+                    </div>
+
+                    <!-- AI爆款重组区域 -->
+                    <div class="ai-recompose-section" id="ai-recompose-section" style="display: none;">
+                        <div class="section-header">
+                            <h2>AI爆款重组</h2>
+                            <p>基于拆解结果重新生成内容</p>
+                        </div>
+
+                        <!-- 拆解内容显示 -->
+                                                    <div class="analysis-result">
+                            <h3>拆解内容</h3>
+                            <div class="analysis-content" id="analysis-content">
+                                <div class="analysis-section">
+                                    <h4>🏷️ 核心产品词:</h4>
+                                    <p>请先输入爆款文案内容，然后点击开始拆解。系统将智能提取产品相关的核心关键词。</p>
+                                </div>
+
+                                <div class="analysis-section">
+                                    <h4>💝 情感触发词:</h4>
+                                    <p>将提取能够引起读者情感共鸣的关键词汇，包括痛点词、满足感词汇等。</p>
+                                </div>
+
+                                <div class="analysis-section">
+                                    <h4>🎯 场景应用词:</h4>
+                                    <p>分析使用场景相关的关键词，包括目标人群、时间地点等环境描述词。</p>
+                                </div>
+
+                                <div class="analysis-section">
+                                    <h4>✨ 效果价值词:</h4>
+                                    <p>提炼效果描述和价值体现相关的关键词，展现产品带来的变化和好处。</p>
+                                </div>
+
+                                <div class="analysis-section">
+                                    <h4>🎨 表达技巧词:</h4>
+                                    <p>识别表达技巧相关的关键词，包括开头引导、转折递进、结尾行动等词汇。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 生成设置 -->
+                        <div class="generation-settings">
+                            <div class="setting-row">
+                                <div class="setting-group">
+                                    <label for="generation-count">生成数量</label>
+                                    <select id="generation-count">
+                                        <option value="1">1篇</option>
+                                        <option value="3" selected>3篇</option>
+                                        <option value="5">5篇</option>
+                                        <option value="10">10篇</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 重组生成按钮 -->
+                        <div class="recompose-actions">
+                            <button class="btn-primary recompose-btn" onclick="startRecompose()">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M13 10V3L4 14H11L11 21L20 10H13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                重组生成
+                            </button>
+                        </div>
+
+                        <!-- 重组结果显示 -->
+                        <div class="recompose-results" id="recompose-results" style="display: none;">
+                            <div class="results-header">
+                                <h3>重组结果</h3>
+                                <div class="results-controls">
+                                    <div class="selection-controls">
+                                        <input type="checkbox" id="recompose-select-all" onchange="toggleRecomposeSelectAll(this.checked)">
+                                        <label for="recompose-select-all">全选</label>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <button class="btn-primary" onclick="saveRecomposeSelected()" id="save-recompose-btn" disabled>保存选中到内容库</button>
+                                        <button class="btn-secondary" onclick="clearRecomposeResults()">清空结果</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="recompose-results-container" class="results-container">
+                                <!-- 重组生成的内容将显示在这里 -->
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    <!-- 智能抓取选项卡结束 -->
+                    
+                    </div>
+                    <!-- 选项卡内容区域结束 -->
+                </div>
+            </div>
+
+            <!-- 通知管理区域 -->
+            <div class="content-section" id="notification-management">
+                <div class="notification-management-container">
+                    <div class="section-header">
+                        <h1>通知管理</h1>
+                        <p>获取账号的点赞、评论、收藏数据</p>
+                    </div>
+
+                    <!-- 账号选择区域 -->
+                    <div class="account-selection-section">
+                        <div class="selection-header">
+                            <h3>选择账号</h3>
+                            <div class="selection-controls">
+                                <button class="btn-secondary" onclick="selectAllNotificationAccounts()">全选</button>
+                                <button class="btn-secondary" onclick="clearNotificationAccountSelection()">清空</button>
+                                <button class="btn-primary" onclick="startNotificationDataFetch()">开始获取</button>
+                            </div>
+                        </div>
+                        
+                        <div class="account-filter-bar">
+                            <div class="filter-group">
+                                <select id="notification-group-filter" onchange="filterNotificationAccounts()">
+                                    <option value="">全部分组</option>
+                                    <!-- 动态生成分组选项 -->
+                                </select>
+                                <select id="notification-platform-filter" onchange="filterNotificationAccounts()">
+                                    <option value="">全部平台</option>
+                                    <option value="xiaohongshu.com">小红书</option>
+                                    <option value="douyin.com">抖音</option>
+                                    <option value="weibo.com">微博</option>
+                                </select>
+                            </div>
+                            <div class="search-box">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M21 21L15 15L21 21ZM17 10C17 13.866 13.866 17 10 17C3 13.866 3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <input type="text" placeholder="搜索账号..." onkeyup="searchNotificationAccounts(this.value)">
+                            </div>
+                        </div>
+                        
+                        <div class="account-selection-grid" id="notification-account-grid">
+                            <!-- 账号选择卡片将在这里动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 数据获取设置 -->
+                    <div class="fetch-settings-section">
+                        <div class="settings-header">
+                            <h3>获取设置</h3>
+                        </div>
+                        <div class="settings-content">
+                                                <div class="setting-row">
+                        <div class="setting-group">
+                            <label for="fetch-type">获取类型</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" id="fetch-comment-details" checked>
+                                    <span class="checkbox-text">评论详细数据</span>
+                                    <small>采集评论内容、用户信息等详细数据</small>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" id="fetch-likes-reddot" checked>
+                                    <span class="checkbox-text">赞和收藏红点数字</span>
+                                    <small>仅获取赞和收藏选项卡的红点数字</small>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" id="fetch-follow-reddot" checked>
+                                    <span class="checkbox-text">新增关注红点数字</span>
+                                    <small>仅获取新增关注选项卡的红点数字</small>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- 运行模式：现在由全局无头模式开关控制 -->
+                                
+                                <div class="setting-group">
+                                    <label for="fetch-time-range">时间范围</label>
+                                    <select id="fetch-time-range" onchange="toggleCustomTimeRange()">
+                                        <option value="today">今天</option>
+                                        <option value="yesterday">昨天</option>
+                                        <option value="week">最近7天</option>
+                                        <option value="month" selected>最近30天</option>
+                                        <option value="custom">自定义</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="setting-group" id="custom-time-range" style="display: none;">
+                                    <label>自定义时间</label>
+                                    <div class="date-range-inputs">
+                                        <input type="date" id="start-date" placeholder="开始日期">
+                                        <span>至</span>
+                                        <input type="date" id="end-date" placeholder="结束日期">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="setting-row">
+                                <div class="setting-group">
+                                    <label for="fetch-interval">获取间隔（秒）</label>
+                                    <input type="number" id="fetch-interval" min="1" max="60" value="5">
+                                    <small>避免请求过于频繁</small>
+                                </div>
+                                
+                                <div class="setting-group">
+                                    <label for="max-retries">最大重试次数</label>
+                                    <input type="number" id="max-retries" min="1" max="10" value="3">
+                                    <small>获取失败时的重试次数</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 获取进度和状态 -->
+                    <div class="fetch-progress-section" id="fetch-progress-section" style="display: none;">
+                        <div class="progress-header">
+                            <h3>获取进度</h3>
+                            <div class="progress-controls">
+                                <button class="btn-secondary" onclick="pauseNotificationDataFetch()">暂停</button>
+                                <button class="btn-danger" onclick="stopNotificationDataFetch()">停止</button>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-content">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="fetch-progress-fill"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span id="progress-text">准备中...</span>
+                                <span id="progress-count">0 / 0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="fetch-status">
+                            <div class="status-item">
+                                <span class="status-label">成功:</span>
+                                <span class="status-value success" id="success-count">0</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">失败:</span>
+                                <span class="status-value error" id="error-count">0</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">跳过:</span>
+                                <span class="status-value warning" id="skip-count">0</span>
+                            </div>
+                        </div>
+
+                         <!-- 流程日志 -->
+                         <div class="fetch-log-section">
+                             <div class="fetch-log-header">
+                                 <h4>流程日志</h4>
+                                 <div class="log-controls">
+                                     <button class="btn-secondary" onclick="clearFetchLog()">清空</button>
+                                 </div>
+                             </div>
+                             <div class="fetch-log-list" id="fetch-log">
+                                 <!-- 实时流程日志显示在这里 -->
+                             </div>
+                         </div>
+                    </div>
+
+                    <!-- 数据结果展示 -->
+                    <div class="data-results-section" id="data-results-section" style="display: none;">
+                        <div class="results-header">
+                            <h3>获取结果</h3>
+                            <div class="results-controls">
+                                <button class="btn-secondary" onclick="exportNotificationData()">导出数据</button>
+                                <button class="btn-secondary" onclick="clearNotificationResults()">清空结果</button>
+                            </div>
+                        </div>
+                        
+                        <div class="results-tabs">
+                            <div class="tab-header">
+                                <button class="tab-btn active" onclick="switchNotificationDataTab('summary')">数据汇总</button>
+                                <button class="tab-btn" onclick="switchNotificationDataTab('details')">详细数据</button>
+                                 <button class="tab-btn" onclick="switchNotificationDataTab('comments')">评论明细</button>
+                                <button class="tab-btn" onclick="switchNotificationDataTab('errors')">错误日志</button>
+                            </div>
+                            
+                            <div class="tab-content">
+                                <!-- 数据汇总标签 -->
+                                <div class="tab-panel active" id="summary-tab">
+                                    <div class="summary-cards">
+                                        <div class="summary-card">
+                                            <div class="card-header">
+                                                <h4>赞和收藏</h4>
+                                                <span class="card-count" id="likes-count">0</span>
+                                            </div>
+                                            <div class="card-content">
+                                                <div class="data-item">
+                                                    <span class="label">总赞和收藏:</span>
+                                                    <span class="value" id="total-likes">0</span>
+                                                </div>
+                                                <div class="data-item">
+                                                    <span class="label">平均赞和收藏:</span>
+                                                    <span class="value" id="avg-likes">0</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="summary-card">
+                                            <div class="card-header">
+                                                <h4>评论数据</h4>
+                                                <span class="card-count" id="comments-count">0</span>
+                                            </div>
+                                            <div class="card-content">
+                                                <div class="data-item">
+                                                    <span class="label">总评论数:</span>
+                                                    <span class="value" id="total-comments">0</span>
+                                                </div>
+                                                <div class="data-item">
+                                                    <span class="label">平均评论:</span>
+                                                    <span class="value" id="avg-comments">0</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        
+                                        
+                                        <div class="summary-card">
+                                            <div class="card-header">
+                                                <h4>新增关注</h4>
+                                                <span class="card-count" id="follows-count">0</span>
+                                            </div>
+                                            <div class="card-content">
+                                                <div class="data-item">
+                                                    <span class="label">总新增关注:</span>
+                                                    <span class="value" id="total-follows">0</span>
+                                                </div>
+                                                <div class="data-item">
+                                                    <span class="label">平均新增关注:</span>
+                                                    <span class="value" id="avg-follows">0</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 详细数据标签 -->
+                                <div class="tab-panel" id="details-tab">
+                                    <div class="details-table-container">
+                                        <table class="details-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>账号</th>
+                                                    <th>平台</th>
+                                                    <th>赞和收藏</th>
+                                                    <th>评论数</th>
+                                                    <th>新增关注</th>
+                                                    <th>获取时间</th>
+                                                    <th>状态</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="details-table-body">
+                                                <!-- 详细数据将在这里显示 -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                 <!-- 评论明细标签 -->
+                                 <div class="tab-panel" id="comments-tab">
+                                     <div class="comments-list" id="comments-list" data-has-toolbar="1">
+                                         <!-- 评论明细将在这里渲染 -->
+                                     </div>
+                                 </div>
+
+                                <!-- 错误日志标签 -->
+                                <div class="tab-panel" id="errors-tab">
+                                    <div class="error-logs" id="error-logs">
+                                        <!-- 错误日志将在这里显示 -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 系统设置区域 -->
+            <div class="content-section" id="system-settings">
+                <div class="system-settings-container">
+                    <div class="section-header">
+                        <h1>系统设置</h1>
+                        <p>配置应用的基础设置和浏览器参数</p>
+                    </div>
+
+                    <!-- 浏览器设置 -->
+                    <div class="settings-section">
+                        <h3>浏览器设置</h3>
+                        <div class="setting-item">
+                            <label for="chrome-path">Chrome浏览器路径</label>
+                            <div class="path-input-group">
+                                <input type="text" id="chrome-path" readonly placeholder="系统自动检测的Chrome路径">
+                                <button type="button" class="btn-secondary" onclick="selectChromePath()">选择路径</button>
+                                <button type="button" class="btn-info" onclick="detectChromePath()">自动检测</button>
+                            </div>
+                            <small class="help-text">选择Chrome或Edge浏览器的可执行文件路径</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label>浏览器状态</label>
+                            <div class="browser-status">
+                                <span id="browser-status-text" class="status-badge">检测中...</span>
+                                <span id="browser-version" class="version-text"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 性能设置 -->
+                    <div class="settings-section">
+                        <h3>性能设置</h3>
+                        <div class="setting-item">
+                            <label for="max-browsers">最大并发浏览器数量</label>
+                            <input type="number" id="max-browsers" min="1" max="50" value="10">
+                            <small class="help-text">同时运行的浏览器实例数量限制</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="status-refresh-interval">状态刷新间隔（秒）</label>
+                            <input type="number" id="status-refresh-interval" min="5" max="300" value="30">
+                            <small class="help-text">自动刷新浏览器运行状态的时间间隔</small>
+                        </div>
+
+                        <!-- 无头模式设置 -->
+                        <div class="setting-item">
+                            <div class="headless-mode-section">
+                                <div class="headless-mode-toggle">
+                                    <label class="toggle-label" for="headless-mode-checkbox">
+                                        <input type="checkbox" id="headless-mode-checkbox" class="toggle-checkbox" onchange="toggleHeadlessMode(this)">
+                                        <div class="toggle-slider"></div>
+                                        <span class="toggle-text">无头模式</span>
+                                    </label>
+                                    <div class="headless-mode-description">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                                            <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <span>启用后浏览器将在后台运行，不显示界面，提高抓取效率</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 指纹配置 -->
+                    <div class="settings-section" style="display: none;">
+                        <h3>浏览器指纹配置</h3>
+                        <div class="setting-item">
+                            <label>指纹配置管理</label>
+                            <div class="action-buttons-group">
+                                <button type="button" class="btn-primary" onclick="showFingerprintConfig()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M19.4 15C19.2669 15.3016 19.2272 15.6362 19.286 15.9606C19.3448 16.285 19.4995 16.5843 19.73 16.82L19.79 16.88C19.976 17.0657 20.1235 17.2863 20.2241 17.5291C20.3248 17.7719 20.3766 18.0322 20.3766 18.295C20.3766 18.5578 20.3248 18.8181 20.2241 19.0609C20.1235 19.3037 19.976 19.5243 19.79 19.71C19.6043 19.896 19.3837 20.0435 19.1409 20.1441C18.8981 20.2448 18.6378 20.2966 18.375 20.2966C18.1122 20.2966 17.8519 20.2448 17.6091 20.1441C17.3663 20.0435 17.1457 19.896 16.96 19.71L16.9 19.65C16.6643 19.4195 16.365 19.2648 16.0406 19.206C15.7162 19.1472 15.3816 19.1869 15.08 19.32C14.7842 19.4468 14.532 19.6572 14.3543 19.9255C14.1766 20.1938 14.0813 20.5082 14.08 20.83V21C14.08 21.5304 13.8693 22.0391 13.4942 22.4142C13.1191 22.7893 12.6104 23 12.08 23C11.5496 23 11.0409 22.7893 10.6658 22.4142C10.2907 22.0391 10.08 21.5304 10.08 21V20.91C10.0723 20.579 9.96512 20.2573 9.77251 19.9887C9.5799 19.7201 9.31074 19.5176 9 19.41C8.69838 19.2769 8.36381 19.2372 8.03941 19.296C7.71502 19.3548 7.41568 19.5095 7.18 19.74L7.12 19.8C6.93425 19.986 6.71368 20.1335 6.47088 20.2341C6.22808 20.3348 5.96783 20.3866 5.705 20.3866C5.44217 20.3866 5.18192 20.3348 4.93912 20.2341C4.69632 20.1335 4.47575 19.986 4.29 19.8C4.10405 19.6143 3.95653 19.3937 3.85588 19.1509C3.75523 18.9081 3.70343 18.6478 3.70343 18.385C3.70343 18.1222 3.75523 17.8619 3.85588 17.6191C3.95653 17.3763 4.10405 17.1557 4.29 16.97L4.35 16.91C4.58054 16.6743 4.73519 16.375 4.794 16.0506C4.85282 15.7262 4.81312 15.3916 4.68 15.09C4.55324 14.7942 4.34276 14.542 4.07447 14.3643C3.80618 14.1866 3.49179 14.0913 3.17 14.09H3C2.46957 14.09 1.96086 13.8793 1.58579 13.5042C1.21071 13.1291 1 12.6204 1 12.09C1 11.5596 1.21071 11.0509 1.58579 10.6758C1.96086 10.3007 2.46957 10.09 3 10.09H3.09C3.42099 10.0823 3.742 9.97512 4.01062 9.78251C4.27925 9.5899 4.48167 9.32074 4.59 9.01C4.72312 8.70838 4.76282 8.37381 4.704 8.04941C4.64519 7.72502 4.49054 7.42568 4.26 7.19L4.2 7.13C4.01405 6.94425 3.86653 6.72368 3.76588 6.48088C3.66523 6.23808 3.61343 5.97783 3.61343 5.715C3.61343 5.45217 3.66523 5.19192 3.76588 4.94912C3.86653 4.70632 4.01405 4.48575 4.2 4.3C4.38575 4.11405 4.60632 3.96653 4.84912 3.86588C5.09192 3.76523 5.35217 3.71343 5.615 3.71343C5.87783 3.71343 6.13808 3.76523 6.38088 3.86588C6.62368 3.96653 6.84425 4.11405 7.03 4.3L7.09 4.36C7.32568 4.59054 7.62502 4.74519 7.94941 4.804C8.27381 4.86282 8.60838 4.82312 8.91 4.69H9C9.29577 4.56324 9.54802 4.35276 9.72569 4.08447C9.90337 3.81618 9.99872 3.50179 10 3.18V3C10 2.46957 10.2107 1.96086 10.5858 1.58579C10.9609 1.21071 11.4696 1 12 1C12.5304 1 13.0391 1.21071 13.4142 1.58579C13.7893 1.96086 14 2.46957 14 3V3.09C14.0013 3.41179 14.0966 3.72618 14.2743 3.99447C14.452 4.26276 14.7042 4.47324 15 4.6C15.3016 4.73312 15.6362 4.77282 15.9606 4.714C16.285 4.65519 16.5843 4.50054 16.82 4.27L16.88 4.21C17.0657 4.02405 17.2863 3.87653 17.5291 3.77588C17.7719 3.67523 18.0322 3.62343 18.295 3.62343C18.5578 3.62343 18.8181 3.67523 19.0609 3.77588C19.3037 3.87653 19.5243 4.02405 19.71 4.21C19.896 4.39575 20.0435 4.61632 20.1441 4.85912C20.2448 5.10192 20.2966 5.36217 20.2966 5.625C20.2966 5.88783 20.2448 6.14808 20.1441 6.39088C20.0435 6.63368 19.896 6.85425 19.71 7.04L19.65 7.1C19.4195 7.33568 19.2648 7.63502 19.206 7.95941C19.1472 8.28381 19.1869 8.61838 19.32 8.92V9C19.4468 9.29577 19.6572 9.54802 19.9255 9.72569C20.1938 9.90337 20.5082 9.99872 20.83 10H21C21.5304 10 22.0391 10.2107 22.4142 10.5858C22.7893 10.9609 23 11.4696 23 12C23 12.5304 22.7893 13.0391 22.4142 13.4142C22.0391 13.7893 21.5304 14 21 14H20.91C20.5882 14.0013 20.2738 14.0966 20.0055 14.2743C19.7372 14.452 19.5268 14.7042 19.4 15V15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    配置浏览器指纹
+                                </button>
+                            </div>
+                            <small class="help-text">生成真实的浏览器指纹参数，提升账号安全性和隐私保护</small>
+                        </div>
+                    </div>
+
+                    <!-- 许可证管理 -->
+                    <div class="settings-section">
+                        <h3>许可证管理</h3>
+                        <div class="setting-item">
+                            <label>当前许可证状态</label>
+                            <div class="license-status-display">
+                                <div id="license-info-display" class="license-info">
+                                    <span class="status-badge" id="license-status-badge">检查中...</span>
+                                    <span class="license-details" id="license-details-text">正在获取许可证信息...</span>
+                                </div>
+                                <div class="action-buttons-group">
+                                    <button type="button" class="btn-info" onclick="viewLicenseDetails()">查看详情</button>
+                                    <button type="button" class="btn-warning" onclick="confirmRemoveLicense()">注销许可证</button>
+                                    <button type="button" class="btn-secondary" onclick="refreshLicenseStatus()">刷新状态</button>
+                                </div>
+                            </div>
+                            <small class="help-text">注销许可证后需要重新激活才能使用软件功能</small>
+                        </div>
+                    </div>
+
+                    <!-- 数据管理 -->
+                    <div class="settings-section">
+                        <h3>数据管理</h3>
+                        <div class="setting-item">
+                            <label>用户数据清理</label>
+                            <div class="action-buttons-group">
+                                <button type="button" class="btn-warning" onclick="cleanupAllUserData()">清理所有用户数据</button>
+                                <button type="button" class="btn-danger" onclick="resetAllSettings()">重置所有设置</button>
+                            </div>
+                            <small class="help-text">谨慎操作：清理用户数据将删除所有浏览器配置文件</small>
+                        </div>
+                    </div>
+
+                    <!-- 保存按钮 -->
+                    <div class="settings-actions">
+                        <button type="button" class="btn-primary" onclick="saveSystemSettings()">保存设置</button>
+                        <button type="button" class="btn-secondary" onclick="resetSystemSettings()">重置默认</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    
+    <!-- 内容编辑模态框 -->
+    <div id="content-edit-modal" class="modal" onclick="closeEditModal(event)">
+        <div class="modal-content large" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>编辑内容</h3>
+                <div class="modal-actions">
+                    <button class="btn-primary" onclick="saveEditedContent()">保存</button>
+                    <button class="btn-secondary" onclick="closeEditModal()">取消</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="edit-form">
+                    <div class="form-group">
+                        <label for="edit-title">标题</label>
+                        <input type="text" id="edit-title" placeholder="输入内容标题...">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-tags">标签</label>
+                        <input type="text" id="edit-tags" placeholder="输入标签，用逗号分隔...">
+                    </div>
+                    <div class="form-group">
+                        <label>图片管理</label>
+                        <div class="edit-image-section">
+                            <div class="edit-image-buttons">
+                                <div class="edit-upload-area" onclick="document.getElementById('edit-file-input').click()">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M21 15V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V15M17 8L12 3M12 3L7 8M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <p>点击上传图片或拖拽到此处</p>
+                                    <p class="upload-hint">支持JPG、PNG格式，最大10MB</p>
+                                </div>
+                                <button type="button" class="gallery-select-btn" onclick="openGallerySelector()">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M5 7H19M5 12H15M5 17H12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                        <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                                    </svg>
+                                    从图片库选择
+                                </button>
+                            </div>
+                            <input type="file" id="edit-file-input" style="display: none" multiple accept="image/*" onchange="handleEditFileUpload(this)">
+                            <div id="edit-image-preview" class="edit-image-preview"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-content">内容</label>
+                        <textarea id="edit-content" rows="12" placeholder="输入内容正文..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建账号模态框 -->
+    <div id="create-account-modal" class="modal" onclick="closeCreateAccountModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>创建新账号</h3>
+                <div class="modal-actions">
+                    <button class="btn-primary" onclick="saveNewAccount()">创建</button>
+                    <button class="btn-secondary" onclick="closeCreateAccountModal()">取消</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="account-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="account-group">分组</label>
+                            <div class="group-selector">
+                                <select id="account-group">
+                                    <!-- 动态生成分组选项 -->
+                                </select>
+                                <button type="button" class="btn-manage-groups" onclick="showGroupManager()" title="管理分组">管理</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="window-name">窗口名称</label>
+                            <input type="text" id="window-name" placeholder="输入窗口名称">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="account-platform">账号平台</label>
+                            <div class="platform-selector">
+                                <select id="account-platform" onchange="handlePlatformChange('account')">
+                                    <option value="xiaohongshu.com">xiaohongshu.com</option>
+                                    <option value="douyin.com">douyin.com</option>
+                                    <option value="weibo.com">weibo.com</option>
+                                    <option value="custom">+ 自定义平台</option>
+                                </select>
+                                <div id="account-custom-platform" class="custom-platform-input" style="display: none;">
+                                    <input type="text" id="account-custom-url" placeholder="输入自定义平台网址，如：example.com" onblur="addCustomPlatform('account')" onkeypress="handleCustomPlatformKeypress(event, 'account')">
+                                    <button type="button" class="btn-icon" onclick="cancelCustomPlatform('account')" title="取消">×</button>
+                                </div>
+                                <button type="button" class="btn-manage-platforms" onclick="showPlatformManager()" title="管理自定义平台">管理</button>
+                            </div>
+                        </div>
+
+                        <!-- 代理配置区域 -->
+                        <div class="form-group proxy-config-section">
+                            <label>
+                                <input type="checkbox" id="account-proxy-enabled" onchange="toggleProxyConfig('account')"> 
+                                使用代理
+                            </label>
+                            <div id="account-proxy-config" class="proxy-config-panel" style="display: none;">
+                                <div class="proxy-config-row">
+                                    <div class="proxy-config-item">
+                                        <label for="account-proxy-type">代理类型</label>
+                                        <select id="account-proxy-type">
+                                            <option value="http">HTTP</option>
+                                            <option value="socks4">SOCKS4</option>
+                                            <option value="socks5">SOCKS5</option>
+                                        </select>
+                                    </div>
+                                    <div class="proxy-config-item">
+                                        <label for="account-proxy-host">代理地址</label>
+                                        <input type="text" id="account-proxy-host" placeholder="127.0.0.1">
+                                    </div>
+                                    <div class="proxy-config-item">
+                                        <label for="account-proxy-port">端口</label>
+                                        <input type="number" id="account-proxy-port" placeholder="8080" min="1" max="65535">
+                                    </div>
+                                </div>
+                                <div class="proxy-config-row">
+                                    <div class="proxy-config-item">
+                                        <label for="account-proxy-username">用户名 (可选)</label>
+                                        <input type="text" id="account-proxy-username" placeholder="用户名">
+                                    </div>
+                                    <div class="proxy-config-item">
+                                        <label for="account-proxy-password">密码 (可选)</label>
+                                        <input type="password" id="account-proxy-password" placeholder="密码">
+                                    </div>
+                                    <div class="proxy-config-item">
+                                        <button type="button" class="btn-test-proxy" onclick="testProxyConnection('account')">
+                                            🔗 测试连接
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="proxy-config-note">
+                                    <small>💡 使用代理可以让每个账号拥有不同的IP地址，提升隐私保护</small>
+                                </div>
+                            </div>
+                        </div>
+
+
+                            <!-- 一键随机生成指纹配置 -->
+                            <div class="proxy-option">
+                                <button type="button" class="btn-generate-config" onclick="generateRandomConfig('account')">
+                                    一键随机生成指纹配置
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="account-note">备注</label>
+                        <textarea id="account-note" rows="3" placeholder="输入备注信息"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+          </div>
+      
+      <!-- 配置窗口模态框 -->
+      <div id="config-window-modal" class="modal" onclick="closeConfigWindowModal(event)">
+          <div class="modal-content config-modal" onclick="event.stopPropagation()">
+              <div class="modal-header">
+                  <h3>窗口配置</h3>
+                  <div class="modal-actions">
+                      <button class="btn-primary" onclick="saveWindowConfig()">保存</button>
+                      <button class="btn-secondary" onclick="closeConfigWindowModal()">取消</button>
+                  </div>
+              </div>
+              <div class="modal-body">
+                  <div class="form-group">
+                      <label for="config-window-name">窗口名称</label>
+                      <input type="text" id="config-window-name" placeholder="输入窗口名称">
+                  </div>
+                  <div class="form-group">
+                      <label for="config-group">分组</label>
+                      <div class="group-selector">
+                          <select id="config-group">
+                              <option value="">选择分组</option>
+                              <option value="未分组">未分组</option>
+                              <!-- 动态生成分组选项 -->
+                          </select>
+                          <button type="button" class="btn-manage-groups" onclick="showGroupManager()" title="管理分组">管理</button>
+                      </div>
+                  </div>
+                  <div class="form-group">
+                      <label for="config-platform">平台</label>
+                                                <div class="platform-selector">
+                          <select id="config-platform" onchange="handlePlatformChange('config')">
+                              <option value="">选择平台</option>
+                              <option value="xiaohongshu.com">小红书</option>
+                              <option value="douyin.com">抖音</option>
+                              <option value="weibo.com">微博</option>
+                              <option value="kuaishou.com">快手</option>
+                              <option value="custom">+ 自定义平台</option>
+                          </select>
+                          <div id="config-custom-platform" class="custom-platform-input" style="display: none;">
+                              <input type="text" id="config-custom-url" placeholder="输入自定义平台网址，如：example.com" onblur="addCustomPlatform('config')" onkeypress="handleCustomPlatformKeypress(event, 'config')">
+                              <button type="button" class="btn-icon" onclick="cancelCustomPlatform('config')" title="取消">×</button>
+                          </div>
+                          <button type="button" class="btn-manage-platforms" onclick="showPlatformManager()" title="管理自定义平台">管理</button>
+                      </div>
+                  </div>
+
+                  <!-- 代理配置区域 -->
+                  <div class="form-group proxy-config-section">
+                      <label>
+                          <input type="checkbox" id="config-proxy-enabled" onchange="toggleProxyConfig('config')"> 
+                          使用代理
+                      </label>
+                      <div id="config-proxy-config" class="proxy-config-panel" style="display: none;">
+                          <div class="proxy-config-row">
+                              <div class="proxy-config-item">
+                                  <label for="config-proxy-type">代理类型</label>
+                                  <select id="config-proxy-type">
+                                      <option value="http">HTTP</option>
+                                      <option value="socks4">SOCKS4</option>
+                                      <option value="socks5">SOCKS5</option>
+                                  </select>
+                              </div>
+                              <div class="proxy-config-item">
+                                  <label for="config-proxy-host">代理地址</label>
+                                  <input type="text" id="config-proxy-host" placeholder="127.0.0.1">
+                              </div>
+                              <div class="proxy-config-item">
+                                  <label for="config-proxy-port">端口</label>
+                                  <input type="number" id="config-proxy-port" placeholder="8080" min="1" max="65535">
+                              </div>
+                          </div>
+                          <div class="proxy-config-row">
+                              <div class="proxy-config-item">
+                                  <label for="config-proxy-username">用户名 (可选)</label>
+                                  <input type="text" id="config-proxy-username" placeholder="用户名">
+                              </div>
+                              <div class="proxy-config-item">
+                                  <label for="config-proxy-password">密码 (可选)</label>
+                                  <input type="password" id="config-proxy-password" placeholder="密码">
+                              </div>
+                              <div class="proxy-config-item">
+                                  <button type="button" class="btn-test-proxy" onclick="testProxyConnection('config')">
+                                      🔗 测试连接
+                                  </button>
+                              </div>
+                          </div>
+                          <div class="proxy-config-note">
+                              <small>💡 使用代理可以让每个账号拥有不同的IP地址，提升隐私保护</small>
+                          </div>
+                      </div>
+                  </div>
+
+
+                      <!-- 一键随机生成指纹配置 -->
+                      <div class="proxy-option">
+                          <button type="button" class="btn-generate-config" onclick="generateRandomConfig('config')">
+                              一键随机生成指纹配置
+                          </button>
+                      </div>
+                  </div>
+                  <div class="form-group">
+                      <label for="config-note">备注</label>
+                      <textarea id="config-note" rows="3" placeholder="输入备注信息"></textarea>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <!-- 删除确认模态框 -->
+      <div id="delete-account-modal" class="modal" onclick="closeDeleteAccountModal(event)">
+          <div class="modal-content" onclick="event.stopPropagation()">
+              <div class="modal-header">
+                  <h3>删除确认</h3>
+                  <div class="modal-actions">
+                      <button class="btn-danger" onclick="confirmDeleteAccounts()">删除</button>
+                      <button class="btn-secondary" onclick="closeDeleteAccountModal()">取消</button>
+                  </div>
+              </div>
+              <div class="modal-body">
+                  <p id="delete-confirmation-text">确定要删除选中的账号吗？此操作不可恢复。</p>
+              </div>
+          </div>
+      </div>
+
+      <!-- 平台管理器模态框 -->
+      <div id="platform-manager-modal" class="modal" onclick="closePlatformManager(event)">
+          <div class="modal-content config-modal" onclick="event.stopPropagation()">
+              <div class="modal-header">
+                  <h3>自定义平台管理</h3>
+                  <div class="modal-actions">
+                      <button class="btn-secondary" onclick="closePlatformManager()">关闭</button>
+                  </div>
+              </div>
+              <div class="modal-body">
+                  <div class="platform-manager">
+                      <div class="platform-list" id="custom-platform-list">
+                          <!-- 自定义平台列表将在这里显示 -->
+                      </div>
+                      <div class="no-platforms" id="no-platforms-message" style="display: none;">
+                          <p>暂无自定义平台</p>
+                          <p class="hint">在创建账号或配置窗口时选择"+ 自定义平台"来添加新平台</p>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <!-- 自定义输入对话框 -->
+      <div id="custom-prompt-modal" class="modal">
+          <div class="modal-content" style="max-width: 400px;">
+              <div class="modal-header">
+                  <h3 id="prompt-title">输入</h3>
+                  <span class="close" onclick="closeCustomPrompt()">&times;</span>
+              </div>
+              <div class="modal-body">
+                  <div class="form-group">
+                      <label id="prompt-label">请输入:</label>
+                      <input type="text" id="prompt-input" placeholder="" maxlength="20" onkeypress="handlePromptKeypress(event)">
+                  </div>
+                  <div class="form-actions">
+                      <button class="btn-primary" onclick="confirmCustomPrompt()">确认</button>
+                      <button class="btn-secondary" onclick="closeCustomPrompt()">取消</button>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <!-- 分组管理器模态框 -->
+      <div id="group-manager-modal" class="modal" onclick="closeGroupManager(event)">
+          <div class="modal-content config-modal" onclick="event.stopPropagation()">
+              <div class="modal-header">
+                  <h3>分组管理</h3>
+                  <div class="modal-actions">
+                      <button class="btn-primary" onclick="showAddGroupForm()">添加分组</button>
+                      <button class="btn-secondary" onclick="closeGroupManager()">关闭</button>
+                  </div>
+              </div>
+              <div class="modal-body">
+                  <div class="group-manager">
+                      <!-- 添加分组表单 -->
+                      <div class="add-group-form" id="add-group-form" style="display: none;">
+                          <div class="form-group">
+                              <label for="new-group-name">分组名称</label>
+                              <input type="text" id="new-group-name" placeholder="输入分组名称" maxlength="20" onkeypress="handleGroupNameKeypress(event)">
+                          </div>
+                          <div class="form-actions">
+                              <button class="btn-primary" onclick="addNewGroup()">添加</button>
+                              <button class="btn-secondary" onclick="hideAddGroupForm()">取消</button>
+                          </div>
+                      </div>
+                      
+                      <!-- 分组列表 -->
+                      <div class="group-list" id="custom-group-list">
+                          <!-- 自定义分组列表将在这里显示 -->
+                      </div>
+                      <div class="no-groups" id="no-groups-message" style="display: none;">
+                          <p>暂无自定义分组</p>
+                          <p class="hint">点击"添加分组"来创建新的分组</p>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <!-- 底部状态栏 -->
+    <div class="status-bar">
+        <span id="status-text">127.0.0.1:5000/#</span>
+        <div class="status-actions">
+            <span id="license-status" class="license-status">许可证状态检查中...</span>
+            <button id="license-btn" class="status-btn" onclick="openLicenseManager()" style="display: none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                    <path d="M9 11L11 13L15 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                会员中心
+            </button>
+            <button id="activate-btn" class="status-btn" onclick="openActivation()" style="display: none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M15 9L9 15M9 9l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                激活软件
+            </button>
+            <button id="test-api-btn" onclick="window.testElectronAPI && window.testElectronAPI.runFullTest()" style="margin-left: 10px; padding: 4px 8px; font-size: 12px; background: #007acc; color: white; border: none; border-radius: 3px; cursor: pointer;">🧪 测试API</button>
+        </div>
+    </div>
+
+    <!-- 图片库选择弹窗 -->
+    <div id="gallery-selector-modal" class="modal" onclick="closeGallerySelector(event)">
+        <div class="modal-dialog gallery-selector-dialog">
+            <div class="modal-header">
+                <h3>从图片库选择图片</h3>
+                <button class="close-btn" onclick="closeGallerySelector()">&times;</button>
+            </div>
+            <div class="modal-body gallery-selector-body">
+                <div id="gallery-selector-empty" class="gallery-empty" style="display: none;">
+                    <div class="empty-icon">📷</div>
+                    <p>图片库是空的</p>
+                    <p class="empty-hint">请先到文生图页面生成并保存一些图片</p>
+                </div>
+                <div id="gallery-selector-grid" class="gallery-selector-grid">
+                    <!-- 图片库项目将动态加载到这里 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="selected-count">
+                    已选择 <span id="selected-count">0</span> 张图片
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeGallerySelector()">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmGallerySelection()">确认选择</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="test-api.js"></script>
+    <script src="quick-test.js"></script>
+    <!-- 内容预览模态框 -->
+    <div class="content-preview-modal" id="content-preview-modal">
+        <div class="preview-modal-content">
+            <div class="preview-modal-header">
+                <h3 class="preview-modal-title" id="preview-modal-title">
+                    <span>🔍</span>
+                    <span>内容预览</span>
+                </h3>
+                <button class="preview-close-btn" onclick="closeContentPreview()">×</button>
+            </div>
+            <div class="preview-modal-body" id="preview-modal-body">
+                <!-- 预览内容将在这里动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="auth-checker.js"></script>
+    <script src="script.js"></script>
+    
+    <script>
+        // 无头模式状态管理（全局变量）
+        window.isHeadlessMode = false;
+        
+        // 初始化无头模式设置
+        function initHeadlessMode() {
+            const savedMode = localStorage.getItem('headless-mode');
+            if (savedMode !== null) {
+                window.isHeadlessMode = savedMode === 'true';
+                const checkbox = document.getElementById('headless-mode-checkbox');
+                if (checkbox) {
+                    checkbox.checked = window.isHeadlessMode;
+                }
+            }
+        }
+        
+        // 切换无头模式
+        function toggleHeadlessMode() {
+            const checkbox = document.getElementById('headless-mode-checkbox');
+            window.isHeadlessMode = checkbox.checked;
+            
+            // 保存设置到本地存储
+            localStorage.setItem('headless-mode', window.isHeadlessMode.toString());
+            
+            // 显示状态提示
+            showHeadlessModeStatus();
+            
+            console.log('无头模式已', window.isHeadlessMode ? '启用' : '禁用');
+        }
+        
+        // 显示无头模式状态提示
+        function showHeadlessModeStatus() {
+            const existingToast = document.querySelector('.headless-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = 'headless-toast';
+            toast.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${window.isHeadlessMode ? '#10b981' : '#f59e0b'};
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    z-index: 10000;
+                    animation: slideIn 0.3s ease-out;
+                ">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            ${window.isHeadlessMode ? 
+                                '<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>' : 
+                                '<path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"/>'
+                            }
+                        </svg>
+                        <span>无头模式已${window.isHeadlessMode ? '启用' : '禁用'}</span>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // 3秒后自动移除提示
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 3000);
+        }
+        
+        // 获取当前无头模式状态
+        function getHeadlessMode() {
+            return window.isHeadlessMode;
+        }
+        
+        // 获取浏览器启动配置（包含无头模式）
+        function getBrowserLaunchOptions(baseOptions = {}) {
+            return {
+                ...baseOptions,
+                headless: window.isHeadlessMode
+            };
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initHeadlessMode();
+            
+            // 添加切换事件监听器
+            const checkbox = document.getElementById('headless-mode-checkbox');
+            if (checkbox) {
+                checkbox.addEventListener('change', toggleHeadlessMode);
+            }
+        });
+        
+        // 添加CSS动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

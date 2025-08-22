@@ -1,0 +1,10 @@
+{
+  "cardKey": "HSAI-TEST-25081719-8VBJ-F519",
+  "accountCount": 5,
+  "validityMinutes": 3,
+  "validityDays": 0.002083,
+  "price": 1,
+  "generatedAt": "2025-08-17T11:53:33.477Z",
+  "description": "HSAI格式3分钟测试卡密",
+  "format": "HSAI-XXXX-XXXX-XXXX-XXXX"
+}

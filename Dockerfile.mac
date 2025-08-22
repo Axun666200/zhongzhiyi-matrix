@@ -1,0 +1,17 @@
+# 使用官方的macOS构建镜像
+FROM electronuserland/builder:wine-mono
+
+# 设置工作目录
+WORKDIR /project
+
+# 复制package文件
+COPY package*.json ./
+
+# 安装依赖
+RUN npm ci
+
+# 复制项目文件
+COPY . .
+
+# 构建macOS版本
+CMD ["npm", "run", "build:mac"]

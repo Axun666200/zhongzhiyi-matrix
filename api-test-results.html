@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElectronAPI 测试结果</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f7;
+        }
+        
+        .test-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #007acc;
+            padding-bottom: 20px;
+        }
+        
+        .header h1 {
+            color: #007acc;
+            margin: 0;
+            font-size: 2.5em;
+        }
+        
+        .header p {
+            color: #666;
+            margin: 10px 0 0 0;
+            font-size: 1.1em;
+        }
+        
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            background: #fafbfc;
+        }
+        
+        .test-section h2 {
+            color: #333;
+            margin: 0 0 15px 0;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .status-success { background-color: #28a745; }
+        .status-error { background-color: #dc3545; }
+        .status-warning { background-color: #ffc107; }
+        .status-info { background-color: #17a2b8; }
+        
+        .test-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .test-item:last-child {
+            border-bottom: none;
+        }
+        
+        .test-name {
+            font-weight: 500;
+        }
+        
+        .test-result {
+            font-size: 0.9em;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        
+        .result-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .result-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .result-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .summary h3 {
+            margin: 0 0 10px 0;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: #007acc;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #005a9e;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        
+        .console-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+            white-space: pre-wrap;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background-color: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007acc, #0056b3);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="header">
+            <h1>🧪 ElectronAPI 测试中心</h1>
+            <p>全面测试应用中的 ElectronAPI 功能</p>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="runAllTests()">🚀 运行所有测试</button>
+            <button class="btn btn-secondary" onclick="runQuickTest()">⚡ 快速测试</button>
+            <button class="btn btn-secondary" onclick="clearResults()">🗑️ 清除结果</button>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+        
+        <div id="testResults">
+            <div class="summary" id="testSummary" style="display: none;">
+                <h3 id="summaryTitle">测试准备中...</h3>
+                <p id="summaryText">点击上方按钮开始测试</p>
+            </div>
+            
+            <!-- Shell API 测试 -->
+            <div class="test-section" id="shellTests">
+                <h2><span class="status-indicator status-info"></span> Shell API 测试</h2>
+                <div id="shellTestResults">
+                    <p>等待测试...</p>
+                </div>
+            </div>
+            
+            <!-- 剪贴板 API 测试 -->
+            <div class="test-section" id="clipboardTests">
+                <h2><span class="status-indicator status-info"></span> 剪贴板 API 测试</h2>
+                <div id="clipboardTestResults">
+                    <p>等待测试...</p>
+                </div>
+            </div>
+            
+            <!-- 对话框 API 测试 -->
+            <div class="test-section" id="dialogTests">
+                <h2><span class="status-indicator status-info"></span> 对话框 API 测试</h2>
+                <div id="dialogTestResults">
+                    <p>等待测试...</p>
+                </div>
+            </div>
+            
+            <!-- 应用信息 API 测试 -->
+            <div class="test-section" id="appInfoTests">
+                <h2><span class="status-indicator status-info"></span> 应用信息 API 测试</h2>
+                <div id="appInfoTestResults">
+                    <p>等待测试...</p>
+                </div>
+            </div>
+            
+            <!-- 窗口控制 API 测试 -->
+            <div class="test-section" id="windowTests">
+                <h2><span class="status-indicator status-info"></span> 窗口控制 API 测试</h2>
+                <div id="windowTestResults">
+                    <p>等待测试...</p>
+                </div>
+            </div>
+            
+            <!-- 工具函数测试 -->
+            <div class="test-section" id="utilityTests">
+                <h2><span class="status-indicator status-info"></span> 工具函数测试</h2>
+                <div id="utilityTestResults">
+                    <p>等待测试...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="console-output" id="consoleOutput">
+            <div>📋 控制台输出将显示在这里...</div>
+            <div>💡 提示：打开浏览器开发者工具查看更详细的日志</div>
+        </div>
+    </div>
+
+    <script>
+        let testResults = {
+            shell: {},
+            clipboard: {},
+            dialog: {},
+            appInfo: {},
+            window: {},
+            utility: {}
+        };
+        
+        let totalTests = 0;
+        let completedTests = 0;
+        
+        // 更新进度条
+        function updateProgress() {
+            const percentage = totalTests > 0 ? (completedTests / totalTests) * 100 : 0;
+            document.getElementById('progressBar').style.width = percentage + '%';
+        }
+        
+        // 添加控制台输出
+        function addConsoleOutput(message, type = 'info') {
+            const console = document.getElementById('consoleOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            console.innerHTML += `<div>[${timestamp}] ${prefix} ${message}</div>`;
+            console.scrollTop = console.scrollHeight;
+        }
+        
+        // 更新测试结果显示
+        function updateTestSection(sectionId, tests) {
+            const section = document.getElementById(sectionId + 'TestResults');
+            const indicator = document.querySelector(`#${sectionId}Tests .status-indicator`);
+            
+            let html = '';
+            let hasError = false;
+            let hasSuccess = false;
+            
+            for (const [testName, result] of Object.entries(tests)) {
+                const resultClass = result.success ? 'result-success' : 'result-error';
+                const resultText = result.success ? '✓ 通过' : '✗ 失败';
+                
+                if (result.success) hasSuccess = true;
+                else hasError = true;
+                
+                html += `
+                    <div class="test-item">
+                        <div class="test-name">${testName}</div>
+                        <div class="test-result ${resultClass}">${resultText}</div>
+                    </div>
+                `;
+                
+                if (result.details) {
+                    html += `<div style="font-size: 0.8em; color: #666; margin-left: 20px;">${result.details}</div>`;
+                }
+            }
+            
+            section.innerHTML = html;
+            
+            // 更新状态指示器
+            if (hasError) {
+                indicator.className = 'status-indicator status-error';
+            } else if (hasSuccess) {
+                indicator.className = 'status-indicator status-success';
+            } else {
+                indicator.className = 'status-indicator status-warning';
+            }
+        }
+        
+        // 等待API就绪
+        async function waitForElectronAPI() {
+            return new Promise((resolve) => {
+                const checkAPI = () => {
+                    if (window.electronAPI) {
+                        addConsoleOutput('ElectronAPI 已就绪', 'success');
+                        resolve(true);
+                    } else {
+                        setTimeout(checkAPI, 100);
+                    }
+                };
+                checkAPI();
+            });
+        }
+        
+        // 测试Shell API
+        async function testShellAPI() {
+            addConsoleOutput('开始测试 Shell API...');
+            
+            const tests = {
+                'openExternal': { success: !!window.electronAPI?.openExternal },
+                'openPath': { success: !!window.electronAPI?.openPath },
+                'trashItem': { success: !!window.electronAPI?.trashItem },
+                'showItemInFolder': { success: !!window.electronAPI?.showItemInFolder }
+            };
+            
+            // 测试实际功能
+            if (tests.openExternal.success) {
+                try {
+                    // 这里不实际打开链接，只测试方法存在
+                    tests.openExternal.details = '方法可用';
+                } catch (error) {
+                    tests.openExternal.success = false;
+                    tests.openExternal.details = '调用失败: ' + error.message;
+                }
+            }
+            
+            testResults.shell = tests;
+            updateTestSection('shell', tests);
+            completedTests += Object.keys(tests).length;
+            updateProgress();
+            
+            addConsoleOutput(`Shell API 测试完成: ${Object.values(tests).filter(t => t.success).length}/${Object.keys(tests).length} 通过`);
+        }
+        
+        // 测试剪贴板API
+        async function testClipboardAPI() {
+            addConsoleOutput('开始测试 Clipboard API...');
+            
+            const tests = {
+                'writeText': { success: !!window.electronAPI?.writeText },
+                'readText': { success: !!window.electronAPI?.readText },
+                'writeImage': { success: !!window.electronAPI?.writeImage },
+                'readImage': { success: !!window.electronAPI?.readImage }
+            };
+            
+            // 实际测试剪贴板写入和读取
+            if (tests.writeText.success && tests.readText.success) {
+                try {
+                    const testText = 'ElectronAPI 测试文本 - ' + Date.now();
+                    const writeResult = await window.electronAPI.writeText(testText);
+                    if (writeResult.success) {
+                        const readResult = await window.electronAPI.readText();
+                        if (readResult.success && readResult.text === testText) {
+                            tests.writeText.details = '写入成功';
+                            tests.readText.details = '读取成功';
+                        } else {
+                            tests.readText.success = false;
+                            tests.readText.details = '读取失败或内容不匹配';
+                        }
+                    } else {
+                        tests.writeText.success = false;
+                        tests.writeText.details = '写入失败';
+                    }
+                } catch (error) {
+                    tests.writeText.success = false;
+                    tests.readText.success = false;
+                    tests.writeText.details = '测试异常: ' + error.message;
+                }
+            }
+            
+            testResults.clipboard = tests;
+            updateTestSection('clipboard', tests);
+            completedTests += Object.keys(tests).length;
+            updateProgress();
+            
+            addConsoleOutput(`Clipboard API 测试完成: ${Object.values(tests).filter(t => t.success).length}/${Object.keys(tests).length} 通过`);
+        }
+        
+        // 测试对话框API
+        async function testDialogAPI() {
+            addConsoleOutput('开始测试 Dialog API...');
+            
+            const tests = {
+                'showOpenDialog': { success: !!window.electronAPI?.showOpenDialog },
+                'showSaveDialog': { success: !!window.electronAPI?.showSaveDialog },
+                'showMessageBox': { success: !!window.electronAPI?.showMessageBox },
+                'showErrorBox': { success: !!window.electronAPI?.showErrorBox }
+            };
+            
+            testResults.dialog = tests;
+            updateTestSection('dialog', tests);
+            completedTests += Object.keys(tests).length;
+            updateProgress();
+            
+            addConsoleOutput(`Dialog API 测试完成: ${Object.values(tests).filter(t => t.success).length}/${Object.keys(tests).length} 通过`);
+        }
+        
+        // 测试应用信息API
+        async function testAppInfoAPI() {
+            addConsoleOutput('开始测试 App Info API...');
+            
+            const tests = {
+                'getAppVersion': { success: !!window.electronAPI?.getAppVersion },
+                'getAppName': { success: !!window.electronAPI?.getAppName }
+            };
+            
+            // 实际测试获取应用信息
+            if (tests.getAppVersion.success) {
+                try {
+                    const result = await window.electronAPI.getAppVersion();
+                    if (result.success) {
+                        tests.getAppVersion.details = `版本: ${result.version}`;
+                    } else {
+                        tests.getAppVersion.success = false;
+                        tests.getAppVersion.details = '获取版本失败';
+                    }
+                } catch (error) {
+                    tests.getAppVersion.success = false;
+                    tests.getAppVersion.details = '调用异常: ' + error.message;
+                }
+            }
+            
+            if (tests.getAppName.success) {
+                try {
+                    const result = await window.electronAPI.getAppName();
+                    if (result.success) {
+                        tests.getAppName.details = `名称: ${result.name}`;
+                    } else {
+                        tests.getAppName.success = false;
+                        tests.getAppName.details = '获取名称失败';
+                    }
+                } catch (error) {
+                    tests.getAppName.success = false;
+                    tests.getAppName.details = '调用异常: ' + error.message;
+                }
+            }
+            
+            testResults.appInfo = tests;
+            updateTestSection('appInfo', tests);
+            completedTests += Object.keys(tests).length;
+            updateProgress();
+            
+            addConsoleOutput(`App Info API 测试完成: ${Object.values(tests).filter(t => t.success).length}/${Object.keys(tests).length} 通过`);
+        }
+        
+        // 测试窗口控制API
+        async function testWindowAPI() {
+            addConsoleOutput('开始测试 Window API...');
+            
+            const tests = {
+                'minimizeWindow': { success: !!window.electronAPI?.minimizeWindow },
+                'maximizeWindow': { success: !!window.electronAPI?.maximizeWindow },
+                'closeWindow': { success: !!window.electronAPI?.closeWindow },
+                'isMaximized': { success: !!window.electronAPI?.isMaximized }
+            };
+            
+            // 测试窗口状态查询
+            if (tests.isMaximized.success) {
+                try {
+                    const result = await window.electronAPI.isMaximized();
+                    if (result.success) {
+                        tests.isMaximized.details = `窗口状态: ${result.isMaximized ? '已最大化' : '未最大化'}`;
+                    } else {
+                        tests.isMaximized.success = false;
+                        tests.isMaximized.details = '获取状态失败';
+                    }
+                } catch (error) {
+                    tests.isMaximized.success = false;
+                    tests.isMaximized.details = '调用异常: ' + error.message;
+                }
+            }
+            
+            testResults.window = tests;
+            updateTestSection('window', tests);
+            completedTests += Object.keys(tests).length;
+            updateProgress();
+            
+            addConsoleOutput(`Window API 测试完成: ${Object.values(tests).filter(t => t.success).length}/${Object.keys(tests).length} 通过`);
+        }
+        
+        // 测试工具函数
+        async function testUtilityFunctions() {
+            addConsoleOutput('开始测试工具函数...');
+            
+            const utilityFunctions = [
+                'openInBrowser', 'openFolder', 'showInFolder', 'deleteToTrash',
+                'copyToClipboard', 'pasteFromClipboard', 'showConfirmDialog',
+                'showInfoDialog', 'showErrorDialog', 'getAppInfo',
+                'minimizeApp', 'maximizeApp', 'selectFile', 'selectFolder'
+            ];
+            
+            const tests = {};
+            utilityFunctions.forEach(funcName => {
+                tests[funcName] = { 
+                    success: typeof window[funcName] === 'function',
+                    details: typeof window[funcName] === 'function' ? '函数可用' : '函数不存在'
+                };
+            });
+            
+            testResults.utility = tests;
+            updateTestSection('utility', tests);
+            completedTests += Object.keys(tests).length;
+            updateProgress();
+            
+            const availableCount = Object.values(tests).filter(t => t.success).length;
+            addConsoleOutput(`工具函数测试完成: ${availableCount}/${Object.keys(tests).length} 可用`);
+        }
+        
+        // 运行所有测试
+        async function runAllTests() {
+            addConsoleOutput('🚀 开始运行完整测试套件...');
+            
+            // 重置计数器
+            completedTests = 0;
+            totalTests = 4 + 4 + 4 + 2 + 4 + 15; // 各个测试的数量
+            updateProgress();
+            
+            // 显示摘要
+            document.getElementById('testSummary').style.display = 'block';
+            document.getElementById('summaryTitle').textContent = '测试进行中...';
+            document.getElementById('summaryText').textContent = '正在执行所有API测试，请稍候...';
+            
+            try {
+                await waitForElectronAPI();
+                
+                await testShellAPI();
+                await new Promise(resolve => setTimeout(resolve, 200)); // 短暂延迟
+                
+                await testClipboardAPI();
+                await new Promise(resolve => setTimeout(resolve, 200));
+                
+                await testDialogAPI();
+                await new Promise(resolve => setTimeout(resolve, 200));
+                
+                await testAppInfoAPI();
+                await new Promise(resolve => setTimeout(resolve, 200));
+                
+                await testWindowAPI();
+                await new Promise(resolve => setTimeout(resolve, 200));
+                
+                await testUtilityFunctions();
+                
+                // 显示最终结果
+                const allTests = {...testResults.shell, ...testResults.clipboard, ...testResults.dialog, 
+                                 ...testResults.appInfo, ...testResults.window, ...testResults.utility};
+                const totalCount = Object.keys(allTests).length;
+                const successCount = Object.values(allTests).filter(t => t.success).length;
+                
+                document.getElementById('summaryTitle').textContent = '✅ 测试完成！';
+                document.getElementById('summaryText').textContent = 
+                    `总计: ${totalCount} 个测试，${successCount} 个通过，${totalCount - successCount} 个失败`;
+                
+                addConsoleOutput(`🎉 所有测试完成！通过率: ${((successCount/totalCount)*100).toFixed(1)}%`, 'success');
+                
+            } catch (error) {
+                addConsoleOutput('测试过程中发生错误: ' + error.message, 'error');
+                document.getElementById('summaryTitle').textContent = '❌ 测试异常';
+                document.getElementById('summaryText').textContent = '测试过程中发生错误，请查看控制台输出';
+            }
+        }
+        
+        // 快速测试（只测试基础功能）
+        async function runQuickTest() {
+            addConsoleOutput('⚡ 开始快速测试...');
+            
+            completedTests = 0;
+            totalTests = 10; // 快速测试项目数
+            updateProgress();
+            
+            document.getElementById('testSummary').style.display = 'block';
+            document.getElementById('summaryTitle').textContent = '快速测试中...';
+            document.getElementById('summaryText').textContent = '正在检查核心API功能...';
+            
+            try {
+                await waitForElectronAPI();
+                
+                // 只测试核心API
+                const quickTests = {
+                    'ElectronAPI 可用性': { success: !!window.electronAPI },
+                    'Shell - openExternal': { success: !!window.electronAPI?.openExternal },
+                    'Clipboard - writeText': { success: !!window.electronAPI?.writeText },
+                    'Clipboard - readText': { success: !!window.electronAPI?.readText },
+                    'Dialog - showMessageBox': { success: !!window.electronAPI?.showMessageBox },
+                    'App - getAppVersion': { success: !!window.electronAPI?.getAppVersion },
+                    'Window - minimizeWindow': { success: !!window.electronAPI?.minimizeWindow },
+                    '工具函数 - copyToClipboard': { success: !!window.copyToClipboard },
+                    '工具函数 - showInfoDialog': { success: !!window.showInfoDialog },
+                    '工具函数 - getAppInfo': { success: !!window.getAppInfo }
+                };
+                
+                // 更新显示
+                let html = '';
+                let successCount = 0;
+                
+                for (const [testName, result] of Object.entries(quickTests)) {
+                    const resultClass = result.success ? 'result-success' : 'result-error';
+                    const resultText = result.success ? '✓ 通过' : '✗ 失败';
+                    
+                    if (result.success) successCount++;
+                    
+                    html += `
+                        <div class="test-item">
+                            <div class="test-name">${testName}</div>
+                            <div class="test-result ${resultClass}">${resultText}</div>
+                        </div>
+                    `;
+                    
+                    completedTests++;
+                    updateProgress();
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                // 显示在第一个测试区域
+                document.getElementById('shellTestResults').innerHTML = html;
+                
+                document.getElementById('summaryTitle').textContent = '⚡ 快速测试完成！';
+                document.getElementById('summaryText').textContent = 
+                    `核心功能: ${successCount}/${Object.keys(quickTests).length} 可用`;
+                
+                addConsoleOutput(`⚡ 快速测试完成！核心功能可用率: ${((successCount/Object.keys(quickTests).length)*100).toFixed(1)}%`, 'success');
+                
+            } catch (error) {
+                addConsoleOutput('快速测试过程中发生错误: ' + error.message, 'error');
+            }
+        }
+        
+        // 清除结果
+        function clearResults() {
+            document.getElementById('testSummary').style.display = 'none';
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('consoleOutput').innerHTML = 
+                '<div>📋 控制台输出将显示在这里...</div><div>💡 提示：打开浏览器开发者工具查看更详细的日志</div>';
+            
+            // 重置所有测试区域
+            const sections = ['shell', 'clipboard', 'dialog', 'appInfo', 'window', 'utility'];
+            sections.forEach(section => {
+                document.getElementById(section + 'TestResults').innerHTML = '<p>等待测试...</p>';
+                document.querySelector(`#${section}Tests .status-indicator`).className = 'status-indicator status-info';
+            });
+            
+            testResults = { shell: {}, clipboard: {}, dialog: {}, appInfo: {}, window: {}, utility: {} };
+            completedTests = 0;
+            totalTests = 0;
+            
+            addConsoleOutput('测试结果已清除', 'info');
+        }
+        
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            addConsoleOutput('ElectronAPI 测试中心已就绪');
+            addConsoleOutput('点击上方按钮开始测试，或打开开发者工具查看详细日志');
+            
+            // 检查API可用性
+            if (window.electronAPI) {
+                addConsoleOutput('✅ ElectronAPI 已检测到', 'success');
+            } else {
+                addConsoleOutput('⚠️ ElectronAPI 未检测到，可能需要在Electron环境中运行', 'warning');
+            }
+        });
+    </script>
+</body>
+</html>

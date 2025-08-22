@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy React组件演示</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: #000;
+            color: #fff;
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .galaxy-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .title {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff, #ffff00);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-shift 3s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(0, 245, 255, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: #00f5ff;
+            margin-bottom: 2rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: rgba(0, 245, 255, 0.2);
+            border: 1px solid #00f5ff;
+            color: #00f5ff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: rgba(0, 245, 255, 0.4);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- React和Babel CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/ogl@1.0.11/dist/ogl.umd.js"></script>
+
+    <script>
+        // 等待OGL加载完成
+        function waitForOGL() {
+            return new Promise((resolve) => {
+                if (window.OGL) {
+                    resolve();
+                } else {
+                    setTimeout(() => waitForOGL().then(resolve), 100);
+                }
+            });
+        }
+        
+        // 确保OGL加载后再运行React代码
+        waitForOGL().then(() => {
+            console.log('OGL loaded successfully:', window.OGL);
+            // 运行主要代码
+            runMainApp();
+        });
+    </script>
+
+    <script type="text/babel">
+        function runMainApp() {
+        const { useState, useEffect, useRef } = React;
+        const { Renderer, Program, Mesh, Color, Triangle } = OGL;
+
+        // Galaxy组件
+        function Galaxy({
+          focal = [0.5, 0.5],
+          rotation = [1.0, 0.0],
+          starSpeed = 0.5,
+          density = 1.5,
+          hueShift = 240,
+          disableAnimation = false,
+          speed = 1.0,
+          mouseInteraction = true,
+          glowIntensity = 0.5,
+          saturation = 0.8,
+          mouseRepulsion = true,
+          repulsionStrength = 2,
+          twinkleIntensity = 0.3,
+          rotationSpeed = 0.1,
+          autoCenterRepulsion = 0,
+          transparent = true,
+          ...rest
+        }) {
+          const ctnDom = useRef(null);
+          const targetMousePos = useRef({ x: 0.5, y: 0.5 });
+          const smoothMousePos = useRef({ x: 0.5, y: 0.5 });
+          const targetMouseActive = useRef(0.0);
+          const smoothMouseActive = useRef(0.0);
+
+          const vertexShader = `
+          attribute vec2 uv;
+          attribute vec2 position;
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = vec4(position, 0, 1);
+          }
+          `;
+
+          const fragmentShader = `
+          precision highp float;
+          uniform float uTime;
+          uniform vec3 uResolution;
+          uniform vec2 uFocal;
+          uniform vec2 uRotation;
+          uniform float uStarSpeed;
+          uniform float uDensity;
+          uniform float uHueShift;
+          uniform float uSpeed;
+          uniform vec2 uMouse;
+          uniform float uGlowIntensity;
+          uniform float uSaturation;
+          uniform bool uMouseRepulsion;
+          uniform float uTwinkleIntensity;
+          uniform float uRotationSpeed;
+          uniform float uRepulsionStrength;
+          uniform float uMouseActiveFactor;
+          uniform float uAutoCenterRepulsion;
+          uniform bool uTransparent;
+          varying vec2 vUv;
+
+          #define NUM_LAYER 4.0
+          #define STAR_COLOR_CUTOFF 0.2
+          #define MAT45 mat2(0.7071, -0.7071, 0.7071, 0.7071)
+          #define PERIOD 3.0
+
+          float Hash21(vec2 p) {
+            p = fract(p * vec2(123.34, 456.21));
+            p += dot(p, p + 45.32);
+            return fract(p.x * p.y);
+          }
+
+          float tri(float x) {
+            return abs(fract(x) * 2.0 - 1.0);
+          }
+
+          float tris(float x) {
+            float t = fract(x);
+            return 1.0 - smoothstep(0.0, 1.0, abs(2.0 * t - 1.0));
+          }
+
+          float trisn(float x) {
+            float t = fract(x);
+            return 2.0 * (1.0 - smoothstep(0.0, 1.0, abs(2.0 * t - 1.0))) - 1.0;
+          }
+
+          vec3 hsv2rgb(vec3 c) {
+            vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+            vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+            return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+          }
+
+          float Star(vec2 uv, float flare) {
+            float d = length(uv);
+            float m = (0.05 * uGlowIntensity) / d;
+            float rays = smoothstep(0.0, 1.0, 1.0 - abs(uv.x * uv.y * 1000.0));
+            m += rays * flare * uGlowIntensity;
+            uv *= MAT45;
+            rays = smoothstep(0.0, 1.0, 1.0 - abs(uv.x * uv.y * 1000.0));
+            m += rays * 0.3 * flare * uGlowIntensity;
+            m *= smoothstep(1.0, 0.2, d);
+            return m;
+          }
+
+          vec3 StarLayer(vec2 uv) {
+            vec3 col = vec3(0.0);
+            vec2 gv = fract(uv) - 0.5; 
+            vec2 id = floor(uv);
+
+            for (int y = -1; y <= 1; y++) {
+              for (int x = -1; x <= 1; x++) {
+                vec2 offset = vec2(float(x), float(y));
+                vec2 si = id + vec2(float(x), float(y));
+                float seed = Hash21(si);
+                float size = fract(seed * 345.32);
+                float glossLocal = tri(uStarSpeed / (PERIOD * seed + 1.0));
+                float flareSize = smoothstep(0.9, 1.0, size) * glossLocal;
+
+                float red = smoothstep(STAR_COLOR_CUTOFF, 1.0, Hash21(si + 1.0)) + STAR_COLOR_CUTOFF;
+                float blu = smoothstep(STAR_COLOR_CUTOFF, 1.0, Hash21(si + 3.0)) + STAR_COLOR_CUTOFF;
+                float grn = min(red, blu) * seed;
+                vec3 base = vec3(red, grn, blu);
+                
+                float hue = atan(base.g - base.r, base.b - base.r) / (2.0 * 3.14159) + 0.5;
+                hue = fract(hue + uHueShift / 360.0);
+                float sat = length(base - vec3(dot(base, vec3(0.299, 0.587, 0.114)))) * uSaturation;
+                float val = max(max(base.r, base.g), base.b);
+                base = hsv2rgb(vec3(hue, sat, val));
+
+                vec2 pad = vec2(tris(seed * 34.0 + uTime * uSpeed / 10.0), tris(seed * 38.0 + uTime * uSpeed / 30.0)) - 0.5;
+
+                float star = Star(gv - offset - pad, flareSize);
+                vec3 color = base;
+
+                float twinkle = trisn(uTime * uSpeed + seed * 6.2831) * 0.5 + 1.0;
+                twinkle = mix(1.0, twinkle, uTwinkleIntensity);
+                star *= twinkle;
+                
+                col += star * size * color;
+              }
+            }
+            return col;
+          }
+
+          void main() {
+            vec2 focalPx = uFocal * uResolution.xy;
+            vec2 uv = (vUv * uResolution.xy - focalPx) / uResolution.y;
+
+            if (uMouseRepulsion) {
+              vec2 mousePosUV = (uMouse * uResolution.xy - focalPx) / uResolution.y;
+              float mouseDist = length(uv - mousePosUV);
+              vec2 repulsion = normalize(uv - mousePosUV) * (uRepulsionStrength / (mouseDist + 0.1));
+              uv += repulsion * 0.05 * uMouseActiveFactor;
+            }
+
+            float autoRotAngle = uTime * uRotationSpeed;
+            mat2 autoRot = mat2(cos(autoRotAngle), -sin(autoRotAngle), sin(autoRotAngle), cos(autoRotAngle));
+            uv = autoRot * uv;
+
+            uv = mat2(uRotation.x, -uRotation.y, uRotation.y, uRotation.x) * uv;
+
+            vec3 col = vec3(0.0);
+
+            for (float i = 0.0; i < 1.0; i += 1.0 / NUM_LAYER) {
+              float depth = fract(i + uStarSpeed * uSpeed);
+              float scale = mix(20.0 * uDensity, 0.5 * uDensity, depth);
+              float fade = depth * smoothstep(1.0, 0.9, depth);
+              col += StarLayer(uv * scale + i * 453.32) * fade;
+            }
+
+            float alpha = length(col);
+            alpha = smoothstep(0.0, 0.3, alpha);
+            alpha = min(alpha, 1.0);
+            gl_FragColor = vec4(col, alpha);
+          }
+          `;
+
+          useEffect(() => {
+            if (!ctnDom.current) return;
+            const ctn = ctnDom.current;
+            
+            const renderer = new Renderer({
+              alpha: transparent,
+              premultipliedAlpha: false,
+            });
+            const gl = renderer.gl;
+
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+            gl.clearColor(0, 0, 0, 0);
+
+            let program;
+
+            function resize() {
+              const scale = 1;
+              renderer.setSize(ctn.offsetWidth * scale, ctn.offsetHeight * scale);
+              if (program) {
+                program.uniforms.uResolution.value = new Color(
+                  gl.canvas.width,
+                  gl.canvas.height,
+                  gl.canvas.width / gl.canvas.height
+                );
+              }
+            }
+            window.addEventListener("resize", resize, false);
+            resize();
+
+            const geometry = new Triangle(gl);
+            program = new Program(gl, {
+              vertex: vertexShader,
+              fragment: fragmentShader,
+              uniforms: {
+                uTime: { value: 0 },
+                uResolution: {
+                  value: new Color(
+                    gl.canvas.width,
+                    gl.canvas.height,
+                    gl.canvas.width / gl.canvas.height
+                  ),
+                },
+                uFocal: { value: new Float32Array(focal) },
+                uRotation: { value: new Float32Array(rotation) },
+                uStarSpeed: { value: starSpeed },
+                uDensity: { value: density },
+                uHueShift: { value: hueShift },
+                uSpeed: { value: speed },
+                uMouse: {
+                  value: new Float32Array([
+                    smoothMousePos.current.x,
+                    smoothMousePos.current.y,
+                  ]),
+                },
+                uGlowIntensity: { value: glowIntensity },
+                uSaturation: { value: saturation },
+                uMouseRepulsion: { value: mouseRepulsion },
+                uTwinkleIntensity: { value: twinkleIntensity },
+                uRotationSpeed: { value: rotationSpeed },
+                uRepulsionStrength: { value: repulsionStrength },
+                uMouseActiveFactor: { value: 0.0 },
+                uAutoCenterRepulsion: { value: autoCenterRepulsion },
+                uTransparent: { value: transparent },
+              },
+            });
+
+            const mesh = new Mesh(gl, { geometry, program });
+            let animateId;
+
+            function update(t) {
+              animateId = requestAnimationFrame(update);
+              if (!disableAnimation) {
+                program.uniforms.uTime.value = t * 0.001;
+                program.uniforms.uStarSpeed.value = (t * 0.001 * starSpeed) / 10.0;
+              }
+
+              const lerpFactor = 0.05;
+              smoothMousePos.current.x +=
+                (targetMousePos.current.x - smoothMousePos.current.x) * lerpFactor;
+              smoothMousePos.current.y +=
+                (targetMousePos.current.y - smoothMousePos.current.y) * lerpFactor;
+
+              smoothMouseActive.current +=
+                (targetMouseActive.current - smoothMouseActive.current) * lerpFactor;
+
+              program.uniforms.uMouse.value[0] = smoothMousePos.current.x;
+              program.uniforms.uMouse.value[1] = smoothMousePos.current.y;
+              program.uniforms.uMouseActiveFactor.value = smoothMouseActive.current;
+
+              renderer.render({ scene: mesh });
+            }
+            animateId = requestAnimationFrame(update);
+            ctn.appendChild(gl.canvas);
+
+            function handleMouseMove(e) {
+              const rect = ctn.getBoundingClientRect();
+              const x = (e.clientX - rect.left) / rect.width;
+              const y = 1.0 - (e.clientY - rect.top) / rect.height;
+              targetMousePos.current = { x, y };
+              targetMouseActive.current = 1.0;
+            }
+
+            function handleMouseLeave() {
+              targetMouseActive.current = 0.0;
+            }
+
+            if (mouseInteraction) {
+              ctn.addEventListener("mousemove", handleMouseMove);
+              ctn.addEventListener("mouseleave", handleMouseLeave);
+            }
+
+            return () => {
+              cancelAnimationFrame(animateId);
+              window.removeEventListener("resize", resize);
+              if (mouseInteraction) {
+                ctn.removeEventListener("mousemove", handleMouseMove);
+                ctn.removeEventListener("mouseleave", handleMouseLeave);
+              }
+              if (ctn.contains(gl.canvas)) {
+                ctn.removeChild(gl.canvas);
+              }
+              gl.getExtension("WEBGL_lose_context")?.loseContext();
+            };
+          }, [
+            focal, rotation, starSpeed, density, hueShift, disableAnimation,
+            speed, mouseInteraction, glowIntensity, saturation, mouseRepulsion,
+            twinkleIntensity, rotationSpeed, repulsionStrength, autoCenterRepulsion, transparent,
+          ]);
+
+          return <div ref={ctnDom} style={{ width: '100%', height: '100%', position: 'relative' }} {...rest} />;
+        }
+
+        // 主应用组件
+        function App() {
+          const [config, setConfig] = useState({
+            density: 1.5,
+            hueShift: 240,
+            glowIntensity: 0.5,
+            saturation: 0.8,
+            speed: 1.0,
+            rotationSpeed: 0.1
+          });
+
+          const presets = [
+            { name: '默认', density: 1.5, hueShift: 240, glowIntensity: 0.5, saturation: 0.8, speed: 1.0 },
+            { name: '紫色梦境', density: 2.0, hueShift: 280, glowIntensity: 0.8, saturation: 1.2, speed: 0.5 },
+            { name: '绿色矩阵', density: 1.8, hueShift: 120, glowIntensity: 0.6, saturation: 1.0, speed: 1.5 },
+            { name: '红色星云', density: 1.2, hueShift: 0, glowIntensity: 0.7, saturation: 0.9, speed: 0.8 },
+            { name: '蓝色深空', density: 1.0, hueShift: 220, glowIntensity: 0.4, saturation: 0.6, speed: 1.2 }
+          ];
+
+          const applyPreset = (preset) => {
+            setConfig({
+              density: preset.density,
+              hueShift: preset.hueShift,
+              glowIntensity: preset.glowIntensity,
+              saturation: preset.saturation,
+              speed: preset.speed,
+              rotationSpeed: 0.1
+            });
+          };
+
+          return (
+            <div className="container">
+              <div className="galaxy-background">
+                <Galaxy {...config} />
+              </div>
+              <div className="content">
+                <h1 className="title">光子矩阵</h1>
+                <p className="subtitle">Galaxy React组件演示</p>
+                <div className="controls">
+                  {presets.map((preset) => (
+                    <button
+                      key={preset.name}
+                      className="btn"
+                      onClick={() => applyPreset(preset)}
+                    >
+                      {preset.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        // 渲染应用
+        ReactDOM.render(<App />, document.getElementById('root'));
+        } // 结束 runMainApp 函数
+    </script>
+</body>
+</html>

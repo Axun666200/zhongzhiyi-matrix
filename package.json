@@ -1,0 +1,39 @@
+{
+  "name": "zhongzhiyi-matrix",
+  "version": "1.0.5",
+  "description": "众之翼矩阵桌面应用",
+  "main": "main.js",
+  "scripts": {
+    "start": "node_modules\\electron\\dist\\electron.exe .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "dist": "electron-builder --publish=never",
+    "test-proxy": "node test-proxy-converter.js",
+    "proxy-converter": "node proxy-converter.js",
+    "test-account-proxy": "node test-account-proxy.js"
+  },
+  "keywords": [
+    "electron",
+    "creator",
+    "ai",
+    "content"
+  ],
+  "author": "众之翼团队",
+  "license": "MIT",
+  "dependencies": {
+    "@react-three/drei": "^10.6.1",
+    "@react-three/fiber": "^9.3.0",
+    "chrome-remote-interface": "^0.33.0",
+    "http-proxy-agent": "^7.0.2",
+    "https-proxy-agent": "^7.0.6",
+    "node-machine-id": "^1.1.12",
+    "ogl": "^1.0.11",
+    "socks-proxy-agent": "^8.0.5",
+    "three": "^0.179.1"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^26.0.12"
+  }
+}

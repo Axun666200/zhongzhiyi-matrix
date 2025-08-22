@@ -1,0 +1,72 @@
+directories:
+  output: dist
+  buildResources: build
+
+appId: com.zhongzhiyi.matrix
+productName: 众之翼矩阵
+copyright: "Copyright © 2024 众之翼团队"
+
+files:
+  - filter:
+      - "**/*"
+      - "!automation/**/*"
+      - "!build-output/**/*"
+      - "!test-*/**/*"
+      - "!temp-*/**/*"
+      - "!fix-*/**/*"
+      - "!manual-*/**/*"
+      - "!*.log"
+      - "!*.md"
+      - "!*.csv"
+      - "!*.txt"
+      - "!*.py"
+      - "!*.har"
+      - "!venv/**/*"
+      - "!node_modules/.cache/**/*"
+
+win:
+  target: 
+    - target: nsis
+      arch: 
+        - x64
+  icon: images/2.png
+  artifactName: "${productName} Setup ${version}.exe"
+
+mac:
+  target: 
+    - target: dmg
+      arch: 
+        - x64
+        - arm64
+  icon: images/2.png
+  category: public.app-category.productivity
+  artifactName: "${productName} ${version}.dmg"
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: null
+  entitlementsInherit: null
+
+dmg:
+  title: "${productName} ${version}"
+  icon: images/2.png
+  iconSize: 80
+  contents:
+    - x: 410
+      y: 150
+      type: link
+      path: /Applications
+    - x: 130
+      y: 150
+      type: file
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  deleteAppDataOnUninstall: false
+  runAfterFinish: true
+  allowElevation: true
+  perMachine: true
+
+electronVersion: 30.5.1

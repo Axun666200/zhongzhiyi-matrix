@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElectronAPI 使用示例</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .section h2 {
+            color: #333;
+            border-bottom: 2px solid #007acc;
+            padding-bottom: 10px;
+        }
+        
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        button {
+            padding: 8px 16px;
+            background-color: #007acc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: #005a9e;
+        }
+        
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .input-group {
+            margin: 10px 0;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .result {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 ElectronAPI 使用示例和测试</h1>
+    
+    <div class="warning">
+        <strong>注意：</strong> 这些功能需要在Electron环境中运行才能正常工作。在普通浏览器中运行时，按钮将被禁用。
+    </div>
+
+    <!-- Shell API 示例 -->
+    <div class="section">
+        <h2>🌐 Shell API - 系统交互</h2>
+        <p>使用系统默认程序打开文件、链接和文件夹</p>
+        
+        <div class="input-group">
+            <label for="urlInput">URL链接:</label>
+            <input type="text" id="urlInput" value="https://github.com" placeholder="输入要打开的网址">
+        </div>
+        <div class="button-group">
+            <button onclick="testOpenExternal()">🌐 在浏览器中打开</button>
+        </div>
+        
+        <div class="input-group">
+            <label for="pathInput">文件/文件夹路径:</label>
+            <input type="text" id="pathInput" value="C:\\" placeholder="输入文件或文件夹路径">
+        </div>
+        <div class="button-group">
+            <button onclick="testOpenPath()">📁 打开路径</button>
+            <button onclick="testShowInFolder()">📍 在文件夹中显示</button>
+            <button onclick="testTrashItem()">🗑️ 删除到回收站</button>
+        </div>
+        
+        <div class="button-group">
+            <button onclick="selectAndOpenFolder()">📂 选择并打开文件夹</button>
+        </div>
+    </div>
+
+    <!-- Clipboard API 示例 -->
+    <div class="section">
+        <h2>📋 Clipboard API - 剪贴板操作</h2>
+        <p>读写系统剪贴板内容</p>
+        
+        <div class="input-group">
+            <label for="clipboardText">要复制的文本:</label>
+            <textarea id="clipboardText" rows="3" placeholder="输入要复制到剪贴板的文本">Hello from ElectronAPI! 🎉</textarea>
+        </div>
+        <div class="button-group">
+            <button onclick="testCopyToClipboard()">📋 复制到剪贴板</button>
+            <button onclick="testPasteFromClipboard()">📄 从剪贴板粘贴</button>
+        </div>
+        
+        <div class="result" id="clipboardResult"></div>
+    </div>
+
+    <!-- Dialog API 示例 -->
+    <div class="section">
+        <h2>💬 Dialog API - 对话框</h2>
+        <p>显示各种系统对话框</p>
+        
+        <div class="button-group">
+            <button onclick="testShowInfo()">ℹ️ 信息对话框</button>
+            <button onclick="testShowConfirm()">❓ 确认对话框</button>
+            <button onclick="testShowError()">❌ 错误对话框</button>
+        </div>
+        
+        <div class="button-group">
+            <button onclick="testSelectFile()">📄 选择文件</button>
+            <button onclick="testSelectFolder()">📁 选择文件夹</button>
+        </div>
+        
+        <div class="result" id="dialogResult"></div>
+    </div>
+
+    <!-- App Info API 示例 -->
+    <div class="section">
+        <h2>📱 App Info API - 应用信息</h2>
+        <p>获取应用程序信息</p>
+        
+        <div class="button-group">
+            <button onclick="testGetAppInfo()">📋 获取应用信息</button>
+        </div>
+        
+        <div class="result" id="appInfoResult"></div>
+    </div>
+
+    <!-- Window Control API 示例 -->
+    <div class="section">
+        <h2>🪟 Window Control API - 窗口控制</h2>
+        <p>控制应用窗口状态</p>
+        
+        <div class="button-group">
+            <button onclick="testMinimize()">🔽 最小化窗口</button>
+            <button onclick="testMaximize()">🔼 最大化/还原窗口</button>
+        </div>
+        
+        <div class="warning">
+            <strong>提示：</strong> 关闭窗口功能未在此演示，因为会直接关闭应用。
+        </div>
+    </div>
+
+    <!-- API 状态检查 -->
+    <div class="section">
+        <h2>🔧 API 状态检查</h2>
+        <p>检查 ElectronAPI 的可用性和状态</p>
+        
+        <div class="button-group">
+            <button onclick="checkAPIStatus()">🔍 检查API状态</button>
+        </div>
+        
+        <div class="result" id="apiStatusResult"></div>
+    </div>
+
+    <script>
+        // 检查是否在Electron环境中
+        const isElectronEnvironment = window.electronAPI !== undefined;
+        
+        // 如果不在Electron环境中，禁用所有按钮
+        if (!isElectronEnvironment) {
+            document.addEventListener('DOMContentLoaded', function() {
+                const buttons = document.querySelectorAll('button');
+                buttons.forEach(button => {
+                    button.disabled = true;
+                    button.title = '需要在Electron环境中运行';
+                });
+                
+                const warning = document.querySelector('.warning');
+                warning.innerHTML = '<strong>警告：</strong> 当前不在Electron环境中运行，所有API功能已禁用。请在Electron应用中打开此页面。';
+                warning.style.backgroundColor = '#f8d7da';
+                warning.style.borderColor = '#f5c6cb';
+                warning.style.color = '#721c24';
+            });
+        }
+
+        // Shell API 测试函数
+        async function testOpenExternal() {
+            const url = document.getElementById('urlInput').value || 'https://github.com';
+            if (window.openInBrowser) {
+                await window.openInBrowser(url);
+            } else {
+                console.log('openInBrowser function not available');
+            }
+        }
+
+        async function testOpenPath() {
+            const path = document.getElementById('pathInput').value || 'C:\\';
+            if (window.openFolder) {
+                await window.openFolder(path);
+            } else {
+                console.log('openFolder function not available');
+            }
+        }
+
+        async function testShowInFolder() {
+            const path = document.getElementById('pathInput').value || 'C:\\';
+            if (window.showInFolder) {
+                await window.showInFolder(path);
+            } else {
+                console.log('showInFolder function not available');
+            }
+        }
+
+        async function testTrashItem() {
+            const path = document.getElementById('pathInput').value;
+            if (!path) {
+                alert('请输入要删除的文件或文件夹路径');
+                return;
+            }
+            if (window.deleteToTrash) {
+                await window.deleteToTrash(path);
+            } else {
+                console.log('deleteToTrash function not available');
+            }
+        }
+
+        async function selectAndOpenFolder() {
+            if (window.selectFolder && window.openFolder) {
+                const folder = await window.selectFolder();
+                if (folder) {
+                    await window.openFolder(folder);
+                }
+            } else {
+                console.log('selectFolder or openFolder function not available');
+            }
+        }
+
+        // Clipboard API 测试函数
+        async function testCopyToClipboard() {
+            const text = document.getElementById('clipboardText').value;
+            if (window.copyToClipboard) {
+                const success = await window.copyToClipboard(text);
+                document.getElementById('clipboardResult').textContent = 
+                    success ? `✅ 已复制: ${text}` : '❌ 复制失败';
+            } else {
+                console.log('copyToClipboard function not available');
+            }
+        }
+
+        async function testPasteFromClipboard() {
+            if (window.pasteFromClipboard) {
+                const text = await window.pasteFromClipboard();
+                document.getElementById('clipboardResult').textContent = 
+                    text ? `📄 剪贴板内容: ${text}` : '📄 剪贴板为空或读取失败';
+            } else {
+                console.log('pasteFromClipboard function not available');
+            }
+        }
+
+        // Dialog API 测试函数
+        async function testShowInfo() {
+            if (window.showInfoDialog) {
+                await window.showInfoDialog('信息', '这是一个信息对话框示例！\n\n功能正常工作 ✅');
+            } else {
+                console.log('showInfoDialog function not available');
+            }
+        }
+
+        async function testShowConfirm() {
+            if (window.showConfirmDialog) {
+                const confirmed = await window.showConfirmDialog(
+                    '确认操作', 
+                    '您确定要执行这个操作吗？\n\n这只是一个演示。', 
+                    '确定', 
+                    '取消'
+                );
+                document.getElementById('dialogResult').textContent = 
+                    confirmed ? '✅ 用户点击了确定' : '❌ 用户点击了取消';
+            } else {
+                console.log('showConfirmDialog function not available');
+            }
+        }
+
+        async function testShowError() {
+            if (window.showErrorDialog) {
+                await window.showErrorDialog('错误演示', '这是一个错误对话框示例！\n\n不用担心，这只是演示。');
+            } else {
+                console.log('showErrorDialog function not available');
+            }
+        }
+
+        async function testSelectFile() {
+            if (window.selectFile) {
+                const file = await window.selectFile({
+                    filters: [
+                        { name: '文本文件', extensions: ['txt', 'md', 'js', 'html', 'css'] },
+                        { name: '图片文件', extensions: ['png', 'jpg', 'jpeg', 'gif', 'bmp'] },
+                        { name: '所有文件', extensions: ['*'] }
+                    ]
+                });
+                document.getElementById('dialogResult').textContent = 
+                    file ? `📄 选择的文件: ${file}` : '❌ 未选择文件';
+            } else {
+                console.log('selectFile function not available');
+            }
+        }
+
+        async function testSelectFolder() {
+            if (window.selectFolder) {
+                const folder = await window.selectFolder();
+                document.getElementById('dialogResult').textContent = 
+                    folder ? `📁 选择的文件夹: ${folder}` : '❌ 未选择文件夹';
+            } else {
+                console.log('selectFolder function not available');
+            }
+        }
+
+        // App Info API 测试函数
+        async function testGetAppInfo() {
+            if (window.getAppInfo) {
+                const info = await window.getAppInfo();
+                document.getElementById('appInfoResult').textContent = 
+                    `应用名称: ${info.name}\n应用版本: ${info.version}`;
+            } else {
+                console.log('getAppInfo function not available');
+            }
+        }
+
+        // Window Control API 测试函数
+        async function testMinimize() {
+            if (window.minimizeApp) {
+                const success = await window.minimizeApp();
+                console.log(success ? '窗口已最小化' : '最小化失败');
+            } else {
+                console.log('minimizeApp function not available');
+            }
+        }
+
+        async function testMaximize() {
+            if (window.maximizeApp) {
+                const success = await window.maximizeApp();
+                console.log(success ? '窗口状态已切换' : '切换失败');
+            } else {
+                console.log('maximizeApp function not available');
+            }
+        }
+
+        // API 状态检查
+        function checkAPIStatus() {
+            const result = document.getElementById('apiStatusResult');
+            
+            if (!window.electronAPI) {
+                result.textContent = '❌ ElectronAPI 不可用\n当前可能不在Electron环境中运行';
+                return;
+            }
+            
+            const apis = [
+                'launchBrowser', 'closeBrowser', 'getRunningBrowsers',
+                'openExternal', 'openPath', 'trashItem', 'showItemInFolder',
+                'writeText', 'readText', 'showMessageBox', 'showErrorBox',
+                'getAppVersion', 'getAppName', 'minimizeWindow', 'maximizeWindow'
+            ];
+            
+            const available = [];
+            const missing = [];
+            
+            apis.forEach(api => {
+                if (window.electronAPI[api]) {
+                    available.push(api);
+                } else {
+                    missing.push(api);
+                }
+            });
+            
+            let status = `✅ ElectronAPI 可用\n\n`;
+            status += `📋 可用的API (${available.length}个):\n`;
+            status += available.map(api => `  ✓ ${api}`).join('\n');
+            
+            if (missing.length > 0) {
+                status += `\n\n❌ 缺失的API (${missing.length}个):\n`;
+                status += missing.map(api => `  ✗ ${api}`).join('\n');
+            }
+            
+            // 检查工具函数
+            const utilFunctions = [
+                'openInBrowser', 'openFolder', 'showInFolder', 'deleteToTrash',
+                'copyToClipboard', 'pasteFromClipboard', 'showConfirmDialog',
+                'showInfoDialog', 'showErrorDialog', 'getAppInfo',
+                'minimizeApp', 'maximizeApp', 'selectFile', 'selectFolder'
+            ];
+            
+            const availableUtils = [];
+            const missingUtils = [];
+            
+            utilFunctions.forEach(func => {
+                if (window[func]) {
+                    availableUtils.push(func);
+                } else {
+                    missingUtils.push(func);
+                }
+            });
+            
+            status += `\n\n🔧 工具函数状态:\n`;
+            status += `  ✓ 可用: ${availableUtils.length}个\n`;
+            status += `  ✗ 缺失: ${missingUtils.length}个`;
+            
+            result.textContent = status;
+        }
+    </script>
+</body>
+</html>

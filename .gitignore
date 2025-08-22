@@ -1,0 +1,60 @@
+# 依赖
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 构建产物
+dist/
+build-output/
+
+# 日志文件
+*.log
+crawler.log
+xiaohongshu_automation.log
+xhs_selenium_publisher.log
+xhs_publisher.log
+
+# 临时文件
+temp-*/
+test-*/
+fix-*/
+manual-*/
+
+# 用户数据
+user-data/
+auth/
+generated-cards/
+proxy-auth-extension/
+
+# Python虚拟环境
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 配置文件
+*.har
+*.csv
+*.txt
+task_tmp.json
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE文件
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 浏览器配置文件
+*-profile/
+browser-profiles/
+chrome-legacy-test-profile/
+test_profile/
+
+# 测试文件
+test.log
+startup.log

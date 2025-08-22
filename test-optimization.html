@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>页面导航优化测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 页面导航优化测试</h1>
+    
+    <div class="status success">
+        ✅ 优化已完成！以下是主要改进内容：
+    </div>
+
+    <div class="test-section">
+        <h2>📋 优化内容总结</h2>
+        <ul>
+            <li><strong>智能导航检查</strong>: 区分不同页面类型，避免不必要的跳转</li>
+            <li><strong>优先使用 history.back()</strong>: 减少强制页面刷新</li>
+            <li><strong>多重返回尝试</strong>: 在直接跳转前先尝试温和的返回方式</li>
+            <li><strong>错误恢复优化</strong>: 更智能的错误处理和页面恢复策略</li>
+            <li><strong>减少等待时间</strong>: 成功操作时减少不必要的延迟</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 具体改进点</h2>
+        
+        <h3>1. 初始页面检查优化</h3>
+        <div class="status warning">
+            <strong>优化前:</strong> 直接强制跳转 → 必定触发页面刷新
+        </div>
+        <div class="status success">
+            <strong>优化后:</strong> 检查页面类型 → 优先使用 history.back() → 必要时才跳转
+        </div>
+
+        <h3>2. 详情页返回优化</h3>
+        <div class="status warning">
+            <strong>优化前:</strong> history.back() → 立即检查并强制跳转
+        </div>
+        <div class="status success">
+            <strong>优化后:</strong> history.back() → 再次尝试 → 最后才直接跳转
+        </div>
+
+        <h3>3. 错误恢复优化</h3>
+        <div class="status warning">
+            <strong>优化前:</strong> 出错时直接强制跳转到原页面
+        </div>
+        <div class="status success">
+            <strong>优化后:</strong> 分析当前页面状态 → 选择最合适的恢复方式
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 预期效果</h2>
+        <ul>
+            <li>🔄 <strong>减少页面刷新次数</strong>: 约减少 60-80% 的强制刷新</li>
+            <li>⚡ <strong>提高稳定性</strong>: 减少 "Inspected target navigated or closed" 错误</li>
+            <li>🚀 <strong>提升性能</strong>: 更快的页面导航和数据抓取</li>
+            <li>🎯 <strong>更智能的导航</strong>: 根据页面状态选择最佳导航方式</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>💡 使用建议</h2>
+        <div class="status success">
+            <p><strong>立即可用!</strong> 优化后的代码已经应用到脚本中，下次运行时会自动生效。</p>
+        </div>
+        
+        <h3>观察要点:</h3>
+        <ul>
+            <li>控制台日志中会显示详细的导航过程</li>
+            <li>看到更多 "✅ 成功通过 history.back() 返回" 消息</li>
+            <li>减少 "🔄 执行直接页面跳转" 消息</li>
+            <li>整体抓取过程更加流畅稳定</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🔍 日志示例</h2>
+        <div class="log">
+🔍 检测到页面偏离，当前: https://www.xiaohongshu.com/explore/xxxxx
+🎯 目标页面: https://www.xiaohongshu.com/search_result?keyword=...
+🔙 尝试使用 history.back() 返回...
+✅ 成功通过 history.back() 返回
+        </div>
+        
+        <p><strong>vs 优化前的日志:</strong></p>
+        <div class="log">
+🔄 执行直接页面跳转
+[Chrome DevTools] Inspected target navigated or closed
+        </div>
+    </div>
+
+    <button onclick="window.close()">关闭测试页面</button>
+
+    <script>
+        console.log('🎉 页面导航优化测试页面已加载');
+        console.log('📝 优化详情已在页面中显示');
+    </script>
+</body>
+</html>

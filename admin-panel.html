@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>光子矩阵 - 管理后台</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .admin-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .admin-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .admin-header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .title-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .admin-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .title-text h1 {
+            margin: 0 0 5px 0;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .title-text p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+
+        .tab-button:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .admin-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .admin-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .card-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .action-button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-badge.unused {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-badge.activated {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .status-badge.expired {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e1e5e9;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-message {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .result-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .result-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .export-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-content">
+            <!-- 头部 -->
+            <div class="admin-header">
+                <div class="header-title">
+                    <div class="title-left">
+                        <div class="admin-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 15L12 3M12 3L16 7M12 3L8 7" stroke="currentColor" stroke-width="2"/>
+                                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2"/>
+                                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="title-text">
+                            <h1>管理后台</h1>
+                            <p>卡密生成与代理商管理</p>
+                        </div>
+                    </div>
+                    <button class="status-btn" onclick="goBack()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        返回主界面
+                    </button>
+                </div>
+
+                <!-- 选项卡 -->
+                <div class="admin-tabs">
+                    <button class="tab-button active" onclick="switchTab('generate')">卡密生成</button>
+                    <button class="tab-button" onclick="switchTab('manage')">卡密管理</button>
+                    <button class="tab-button" onclick="switchTab('statistics')">统计分析</button>
+                    <button class="tab-button" onclick="switchTab('agents')">代理商管理</button>
+                </div>
+            </div>
+
+            <!-- 卡密生成页面 -->
+            <div id="tab-generate" class="tab-content active">
+                <div class="admin-cards">
+                    <!-- 快速生成 -->
+                    <div class="admin-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-icon" style="background: #4caf50;">快</div>
+                                快速生成
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">套餐类型</label>
+                            <select class="form-select" id="quickPackageType">
+                                <option value="10">10账号版 - ¥3000/月</option>
+                                <option value="20">20账号版 - ¥5600/月</option>
+                                <option value="50">50账号版 - ¥12500/月</option>
+                                <option value="100">100账号版 - ¥22000/月</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">有效期类型</label>
+                            <select class="form-select" id="quickDurationType">
+                                <option value="30">月卡 (30天)</option>
+                                <option value="90">季卡 (90天) - 8.5折</option>
+                                <option value="365">年卡 (365天) - 7折</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">生成数量</label>
+                            <input type="number" class="form-input" id="quickQuantity" value="10" min="1" max="1000">
+                        </div>
+
+                        <button class="action-button" onclick="quickGenerate()">快速生成</button>
+                    </div>
+
+                    <!-- 批量生成 -->
+                    <div class="admin-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-icon" style="background: #2196f3;">批</div>
+                                批量生成
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">账号数量</label>
+                                <input type="number" class="form-input" id="batchAccountCount" value="10" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">有效天数</label>
+                                <input type="number" class="form-input" id="batchDurationDays" value="30" min="1">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">价格(元)</label>
+                                <input type="number" class="form-input" id="batchPrice" value="3000" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">生成数量</label>
+                                <input type="number" class="form-input" id="batchQuantity" value="50" min="1">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">代理商ID (可选)</label>
+                            <input type="text" class="form-input" id="batchAgentId" placeholder="留空为系统生成">
+                        </div>
+
+                        <button class="action-button" onclick="batchGenerate()">批量生成</button>
+                    </div>
+
+                    <!-- 预设套餐 -->
+                    <div class="admin-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-icon" style="background: #ff9800;">预</div>
+                                预设套餐
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">选择预设</label>
+                            <select class="form-select" id="presetType">
+                                <option value="starter">入门套餐 (10账号 × 4种时长)</option>
+                                <option value="professional">专业套餐 (20-50账号 × 4种时长)</option>
+                                <option value="enterprise">企业套餐 (100账号 × 4种时长)</option>
+                                <option value="all">全套餐 (所有类型)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">每种类型数量</label>
+                            <input type="number" class="form-input" id="presetQuantity" value="100" min="1">
+                        </div>
+
+                        <button class="action-button" onclick="generatePreset()">生成预设套餐</button>
+                    </div>
+                </div>
+
+                <div class="result-message" id="generateResult"></div>
+            </div>
+
+            <!-- 卡密管理页面 -->
+            <div id="tab-manage" class="tab-content">
+                <div class="admin-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="card-icon" style="background: #9c27b0;">管</div>
+                            卡密查询与管理
+                        </div>
+                        <button class="btn-outline" onclick="refreshCardList()">刷新列表</button>
+                    </div>
+
+                    <!-- 搜索筛选 -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">卡密查询</label>
+                            <input type="text" class="form-input" id="searchCardKey" placeholder="输入完整卡密或部分内容">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">状态筛选</label>
+                            <select class="form-select" id="filterStatus">
+                                <option value="">全部状态</option>
+                                <option value="unused">未使用</option>
+                                <option value="activated">已激活</option>
+                                <option value="expired">已过期</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">套餐类型</label>
+                            <select class="form-select" id="filterPackage">
+                                <option value="">全部套餐</option>
+                                <option value="10">10账号版</option>
+                                <option value="20">20账号版</option>
+                                <option value="50">50账号版</option>
+                                <option value="100">100账号版</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">代理商</label>
+                            <input type="text" class="form-input" id="filterAgent" placeholder="代理商ID">
+                        </div>
+                    </div>
+
+                    <button class="action-button" onclick="searchCards()">查询卡密</button>
+
+                    <!-- 卡密列表 -->
+                    <div class="data-table-container">
+                        <table class="data-table" id="cardTable">
+                            <thead>
+                                <tr>
+                                    <th>卡密</th>
+                                    <th>套餐</th>
+                                    <th>价格</th>
+                                    <th>状态</th>
+                                    <th>创建时间</th>
+                                    <th>激活时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cardTableBody">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
+                                        暂无数据，请先生成卡密或使用查询功能
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="export-actions">
+                        <button class="btn-outline" onclick="exportCards()">导出Excel</button>
+                        <button class="btn-outline" onclick="exportFilteredCards()">导出筛选结果</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 统计分析页面 -->
+            <div id="tab-statistics" class="tab-content">
+                <div class="admin-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="card-icon" style="background: #607d8b;">统</div>
+                            使用统计
+                        </div>
+                        <button class="btn-outline" onclick="refreshStatistics()">刷新数据</button>
+                    </div>
+
+                    <div class="stats-grid" id="statisticsGrid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalCards">-</div>
+                            <div class="stat-label">总卡密数</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="activatedCards">-</div>
+                            <div class="stat-label">已激活</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="unusedCards">-</div>
+                            <div class="stat-label">未使用</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalRevenue">-</div>
+                            <div class="stat-label">总价值(元)</div>
+                        </div>
+                    </div>
+
+                    <!-- 详细统计表格 -->
+                    <div class="data-table-container" style="margin-top: 30px;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>套餐类型</th>
+                                    <th>未使用</th>
+                                    <th>已激活</th>
+                                    <th>已过期</th>
+                                    <th>总计</th>
+                                    <th>总价值</th>
+                                </tr>
+                            </thead>
+                            <tbody id="statisticsTableBody">
+                                <!-- 动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 代理商管理页面 -->
+            <div id="tab-agents" class="tab-content">
+                <div class="admin-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="card-icon" style="background: #795548;">代</div>
+                            代理商管理
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <p style="color: #666; margin: 0;">代理商管理功能正在开发中，敬请期待...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载覆盖层 -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script>
+        let currentTab = 'generate';
+
+        // 切换选项卡
+        function switchTab(tabName) {
+            // 隐藏所有内容
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // 移除所有按钮的激活状态
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 显示选中的内容
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            event.target.classList.add('active');
+            
+            currentTab = tabName;
+            
+            // 加载对应数据
+            if (tabName === 'manage') {
+                loadCardList();
+            } else if (tabName === 'statistics') {
+                loadStatistics();
+            }
+        }
+
+        // 快速生成
+        async function quickGenerate() {
+            const packageType = document.getElementById('quickPackageType').value;
+            const durationType = parseInt(document.getElementById('quickDurationType').value);
+            const quantity = parseInt(document.getElementById('quickQuantity').value);
+            
+            const config = {
+                packageType: packageType,
+                accountCount: parseInt(packageType),
+                durationDays: durationType,
+                price: calculatePrice(packageType, durationType),
+                quantity: quantity,
+                agentId: 'admin'
+            };
+            
+            await generateCards(config);
+        }
+
+        // 批量生成
+        async function batchGenerate() {
+            const config = {
+                packageType: document.getElementById('batchAccountCount').value,
+                accountCount: parseInt(document.getElementById('batchAccountCount').value),
+                durationDays: parseInt(document.getElementById('batchDurationDays').value),
+                price: parseFloat(document.getElementById('batchPrice').value),
+                quantity: parseInt(document.getElementById('batchQuantity').value),
+                agentId: document.getElementById('batchAgentId').value || 'admin'
+            };
+            
+            await generateCards(config);
+        }
+
+        // 生成预设套餐
+        async function generatePreset() {
+            // 预设套餐配置
+            const presets = {
+                starter: [
+                    { packageType: '10', accountCount: 10, durationDays: 30, price: 3000 },
+                    { packageType: '10', accountCount: 10, durationDays: 90, price: 7650 },
+                    { packageType: '10', accountCount: 10, durationDays: 365, price: 25200 }
+                ],
+                professional: [
+                    { packageType: '20', accountCount: 20, durationDays: 30, price: 5600 },
+                    { packageType: '20', accountCount: 20, durationDays: 90, price: 14280 },
+                    { packageType: '50', accountCount: 50, durationDays: 30, price: 12500 },
+                    { packageType: '50', accountCount: 50, durationDays: 90, price: 31875 }
+                ],
+                enterprise: [
+                    { packageType: '100', accountCount: 100, durationDays: 30, price: 22000 },
+                    { packageType: '100', accountCount: 100, durationDays: 90, price: 56100 },
+                    { packageType: '100', accountCount: 100, durationDays: 365, price: 184800 }
+                ]
+            };
+            
+            const presetType = document.getElementById('presetType').value;
+            const quantity = parseInt(document.getElementById('presetQuantity').value);
+            
+            let configs = [];
+            if (presetType === 'all') {
+                configs = [...presets.starter, ...presets.professional, ...presets.enterprise];
+            } else {
+                configs = presets[presetType] || [];
+            }
+            
+            showLoading(true);
+            const results = [];
+            
+            for (const config of configs) {
+                try {
+                    const result = await window.electronAPI.generateCardKeys({
+                        ...config,
+                        quantity: quantity,
+                        agentId: 'admin'
+                    });
+                    results.push(result);
+                } catch (error) {
+                    console.error('生成预设套餐失败:', error);
+                }
+            }
+            
+            showLoading(false);
+            showResult(`预设套餐生成完成，共${configs.length}种类型`, 'success');
+        }
+
+        // 执行卡密生成
+        async function generateCards(config) {
+            showLoading(true);
+            
+            try {
+                const response = await window.electronAPI.generateCardKeys(config);
+                
+                if (response.success) {
+                    showResult(`生成成功！共生成${response.cards.length}张卡密`, 'success');
+                } else {
+                    showResult(`生成失败：${response.message}`, 'error');
+                }
+            } catch (error) {
+                console.error('生成卡密失败:', error);
+                showResult('生成卡密时发生错误', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 计算价格
+        function calculatePrice(packageType, durationDays) {
+            const basePrice = parseInt(packageType) * 300; // 基础月价
+            let multiplier = 1;
+            
+            if (durationDays === 90) {
+                multiplier = 3 * 0.85; // 季卡8.5折
+            } else if (durationDays === 365) {
+                multiplier = 12 * 0.7; // 年卡7折
+            }
+            
+            return Math.round(basePrice * multiplier);
+        }
+
+        // 搜索卡密
+        async function searchCards() {
+            // 实现卡密搜索逻辑
+            showLoading(true);
+            
+            try {
+                const filter = {
+                    cardKey: document.getElementById('searchCardKey').value,
+                    status: document.getElementById('filterStatus').value,
+                    packageType: document.getElementById('filterPackage').value,
+                    agentId: document.getElementById('filterAgent').value
+                };
+                
+                const response = await window.electronAPI.exportCards(filter);
+                if (response.success) {
+                    updateCardTable(response.cards);
+                }
+            } catch (error) {
+                console.error('搜索卡密失败:', error);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 更新卡密表格
+        function updateCardTable(cards) {
+            const tbody = document.getElementById('cardTableBody');
+            tbody.innerHTML = '';
+            
+            if (cards.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
+                            没有找到符合条件的卡密
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            cards.forEach(card => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><code>${card.card_key}</code></td>
+                    <td>${card.account_count}账号/${card.duration_days}天</td>
+                    <td>¥${card.price}</td>
+                    <td><span class="status-badge ${card.status}">${getStatusText(card.status)}</span></td>
+                    <td>${formatDate(card.created_at)}</td>
+                    <td>${card.activated_at ? formatDate(card.activated_at) : '-'}</td>
+                    <td>
+                        <button onclick="viewCard('${card.card_key}')" style="padding: 4px 8px; font-size: 12px;">详情</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 获取状态文本
+        function getStatusText(status) {
+            const statusMap = {
+                'unused': '未使用',
+                'activated': '已激活', 
+                'expired': '已过期'
+            };
+            return statusMap[status] || status;
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleString('zh-CN');
+        }
+
+        // 加载卡密列表
+        async function loadCardList() {
+            // 默认不加载，等用户搜索
+        }
+
+        // 刷新卡密列表
+        function refreshCardList() {
+            searchCards();
+        }
+
+        // 加载统计数据
+        async function loadStatistics() {
+            showLoading(true);
+            
+            try {
+                const response = await window.electronAPI.getUsageStatistics();
+                if (response.success) {
+                    updateStatistics(response.statistics);
+                }
+            } catch (error) {
+                console.error('加载统计数据失败:', error);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 更新统计显示
+        function updateStatistics(stats) {
+            document.getElementById('totalCards').textContent = stats.total.count || 0;
+            document.getElementById('activatedCards').textContent = stats.activated?.count || 0;
+            document.getElementById('unusedCards').textContent = stats.unused?.count || 0;
+            document.getElementById('totalRevenue').textContent = '¥' + (stats.total.value || 0).toLocaleString();
+            
+            // 更新详细统计表格
+            const tbody = document.getElementById('statisticsTableBody');
+            tbody.innerHTML = '';
+            
+            Object.entries(stats.byPackage || {}).forEach(([packageType, data]) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${packageType}账号版</td>
+                    <td>${data.unused?.count || 0}</td>
+                    <td>${data.activated?.count || 0}</td>
+                    <td>${data.expired?.count || 0}</td>
+                    <td>${(data.unused?.count || 0) + (data.activated?.count || 0) + (data.expired?.count || 0)}</td>
+                    <td>¥${((data.unused?.value || 0) + (data.activated?.value || 0) + (data.expired?.value || 0)).toLocaleString()}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 刷新统计数据
+        function refreshStatistics() {
+            loadStatistics();
+        }
+
+        // 查看卡密详情
+        async function viewCard(cardKey) {
+            try {
+                const response = await window.electronAPI.getCardDetails(cardKey);
+                if (response.success && response.result.found) {
+                    const info = response.result.info;
+                    const details = `
+卡密：${info.cardKey}
+套餐：${info.accountCount}账号 ${info.durationDays}天
+价格：¥${info.price}
+状态：${getStatusText(info.status)}
+创建时间：${formatDate(info.createdAt)}
+激活时间：${info.activatedAt ? formatDate(info.activatedAt) : '未激活'}
+到期时间：${info.expiresAt ? formatDate(info.expiresAt) : '-'}
+设备ID：${info.deviceId || '未绑定'}
+                    `;
+                    alert(details);
+                } else {
+                    alert('卡密不存在');
+                }
+            } catch (error) {
+                alert('查询失败：' + error.message);
+            }
+        }
+
+        // 导出功能
+        function exportCards() {
+            searchCards().then(() => {
+                // 实现导出逻辑
+                alert('导出功能开发中...');
+            });
+        }
+
+        function exportFilteredCards() {
+            alert('导出筛选结果功能开发中...');
+        }
+
+        // 显示加载状态
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+        }
+
+        // 显示结果消息
+        function showResult(message, type) {
+            const resultEl = document.getElementById('generateResult');
+            resultEl.textContent = message;
+            resultEl.className = `result-message result-${type}`;
+            resultEl.style.display = 'block';
+            
+            setTimeout(() => {
+                resultEl.style.display = 'none';
+            }, 5000);
+        }
+
+        // 返回主界面
+        function goBack() {
+            window.location.href = 'main.html';
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 检查是否有管理员权限
+            if (!window.electronAPI) {
+                alert('需要在Electron环境中运行');
+                return;
+            }
+            
+            console.log('管理后台已加载');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy React组件演示 - 修复版</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: #000;
+            color: #fff;
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .galaxy-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.2);
+            pointer-events: none; /* 让鼠标事件穿透到背景层 */
+        }
+
+        .title {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff, #ffff00);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-shift 3s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(0, 245, 255, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: #00f5ff;
+            margin-bottom: 2rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            pointer-events: auto; /* 恢复控制面板的指针事件 */
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: rgba(0, 245, 255, 0.2);
+            border: 1px solid #00f5ff;
+            color: #00f5ff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            pointer-events: auto; /* 恢复按钮的指针事件 */
+        }
+
+        .btn:hover {
+            background: rgba(0, 245, 255, 0.4);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+        }
+
+        .interaction-controls {
+            pointer-events: auto !important; /* 确保交互控制面板可以接收鼠标事件 */
+        }
+
+        .loading {
+            color: #00f5ff;
+            font-size: 1.2rem;
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <div class="container">
+            <div class="content">
+                <div class="loading">🌌 加载Galaxy组件中...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- React CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- 直接嵌入OGL库 -->
+    <script>
+        // 嵌入OGL库的核心部分
+        const OGL = (() => {
+            // 简化的OGL实现，专为Galaxy组件使用
+            class Renderer {
+                constructor(options = {}) {
+                    const canvas = document.createElement('canvas');
+                    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                    
+                    if (!gl) {
+                        throw new Error('WebGL not supported');
+                    }
+                    
+                    this.gl = gl;
+                    this.canvas = canvas;
+                    
+                    if (options.alpha !== false) {
+                        canvas.style.background = 'transparent';
+                    }
+                    
+                    gl.clearColor(0, 0, 0, 0);
+                    gl.enable(gl.BLEND);
+                    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+                }
+                
+                setSize(width, height) {
+                    this.canvas.width = width;
+                    this.canvas.height = height;
+                    this.canvas.style.width = width + 'px';
+                    this.canvas.style.height = height + 'px';
+                    this.gl.viewport(0, 0, width, height);
+                }
+                
+                render({ scene }) {
+                    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+                    scene.render(this.gl);
+                }
+            }
+            
+            class Program {
+                constructor(gl, { vertex, fragment, uniforms = {} }) {
+                    this.gl = gl;
+                    this.uniforms = uniforms;
+                    
+                    const vertexShader = this.createShader(gl.VERTEX_SHADER, vertex);
+                    const fragmentShader = this.createShader(gl.FRAGMENT_SHADER, fragment);
+                    
+                    this.program = gl.createProgram();
+                    gl.attachShader(this.program, vertexShader);
+                    gl.attachShader(this.program, fragmentShader);
+                    gl.linkProgram(this.program);
+                    
+                    if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
+                        console.error('Program link error:', gl.getProgramInfoLog(this.program));
+                    }
+                    
+                    this.uniformLocations = {};
+                    this.attributeLocations = {};
+                    
+                    // 获取uniform位置
+                    Object.keys(uniforms).forEach(name => {
+                        this.uniformLocations[name] = gl.getUniformLocation(this.program, name);
+                    });
+                    
+                    // 获取attribute位置
+                    this.attributeLocations.position = gl.getAttribLocation(this.program, 'position');
+                    this.attributeLocations.uv = gl.getAttribLocation(this.program, 'uv');
+                }
+                
+                createShader(type, source) {
+                    const shader = this.gl.createShader(type);
+                    this.gl.shaderSource(shader, source);
+                    this.gl.compileShader(shader);
+                    
+                    if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
+                        console.error('Shader compile error:', this.gl.getShaderInfoLog(shader));
+                    }
+                    
+                    return shader;
+                }
+            }
+            
+            class Mesh {
+                constructor(gl, { geometry, program }) {
+                    this.gl = gl;
+                    this.geometry = geometry;
+                    this.program = program;
+                }
+                
+                render(gl) {
+                    gl.useProgram(this.program.program);
+                    
+                    // 设置uniforms
+                    Object.keys(this.program.uniforms).forEach(name => {
+                        const uniform = this.program.uniforms[name];
+                        const location = this.program.uniformLocations[name];
+                        
+                        if (location !== null) {
+                            if (uniform.value instanceof Float32Array) {
+                                if (uniform.value.length === 2) {
+                                    gl.uniform2fv(location, uniform.value);
+                                } else if (uniform.value.length === 3) {
+                                    gl.uniform3fv(location, uniform.value);
+                                }
+                            } else if (typeof uniform.value === 'boolean') {
+                                gl.uniform1i(location, uniform.value ? 1 : 0);
+                            } else if (typeof uniform.value === 'number') {
+                                gl.uniform1f(location, uniform.value);
+                            } else if (uniform.value && uniform.value.r !== undefined) {
+                                // Color object
+                                gl.uniform3f(location, uniform.value.r, uniform.value.g, uniform.value.b);
+                            }
+                        }
+                    });
+                    
+                    // 绑定几何体
+                    this.geometry.render(gl, this.program);
+                }
+            }
+            
+            class Triangle {
+                constructor(gl) {
+                    this.gl = gl;
+                    
+                    // 创建全屏三角形
+                    const positions = new Float32Array([
+                        -1, -1,
+                         3, -1,
+                        -1,  3
+                    ]);
+                    
+                    const uvs = new Float32Array([
+                        0, 0,
+                        2, 0,
+                        0, 2
+                    ]);
+                    
+                    this.positionBuffer = gl.createBuffer();
+                    gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+                    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+                    
+                    this.uvBuffer = gl.createBuffer();
+                    gl.bindBuffer(gl.ARRAY_BUFFER, this.uvBuffer);
+                    gl.bufferData(gl.ARRAY_BUFFER, uvs, gl.STATIC_DRAW);
+                }
+                
+                render(gl, program) {
+                    // 位置属性
+                    if (program.attributeLocations.position !== -1) {
+                        gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+                        gl.enableVertexAttribArray(program.attributeLocations.position);
+                        gl.vertexAttribPointer(program.attributeLocations.position, 2, gl.FLOAT, false, 0, 0);
+                    }
+                    
+                    // UV属性
+                    if (program.attributeLocations.uv !== -1) {
+                        gl.bindBuffer(gl.ARRAY_BUFFER, this.uvBuffer);
+                        gl.enableVertexAttribArray(program.attributeLocations.uv);
+                        gl.vertexAttribPointer(program.attributeLocations.uv, 2, gl.FLOAT, false, 0, 0);
+                    }
+                    
+                    gl.drawArrays(gl.TRIANGLES, 0, 3);
+                }
+            }
+            
+            class Color {
+                constructor(r, g, b) {
+                    this.r = r;
+                    this.g = g;
+                    this.b = b;
+                }
+            }
+            
+            return {
+                Renderer,
+                Program,
+                Mesh,
+                Triangle,
+                Color
+            };
+        })();
+        
+        console.log('OGL库已加载:', OGL);
+    </script>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const { Renderer, Program, Mesh, Color, Triangle } = OGL;
+
+        // Galaxy组件
+        function Galaxy({
+          focal = [0.5, 0.5],
+          rotation = [1.0, 0.0],
+          starSpeed = 0.5,
+          density = 1.5,
+          hueShift = 240,
+          disableAnimation = false,
+          speed = 1.0,
+          mouseInteraction = true,
+          glowIntensity = 0.5,
+          saturation = 0.8,
+          mouseRepulsion = true,
+          repulsionStrength = 2,
+          twinkleIntensity = 0.3,
+          rotationSpeed = 0.1,
+          autoCenterRepulsion = 0,
+          transparent = true,
+          testMode = false,
+          ...rest
+        }) {
+          const ctnDom = useRef(null);
+          const targetMousePos = useRef({ x: 0.5, y: 0.5 });
+          const smoothMousePos = useRef({ x: 0.5, y: 0.5 });
+          const targetMouseActive = useRef(0.0);
+          const smoothMouseActive = useRef(0.0);
+
+          const vertexShader = `
+          attribute vec2 uv;
+          attribute vec2 position;
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = vec4(position, 0, 1);
+          }
+          `;
+
+          const fragmentShader = `
+          precision highp float;
+          uniform float uTime;
+          uniform vec3 uResolution;
+          uniform vec2 uFocal;
+          uniform vec2 uRotation;
+          uniform float uStarSpeed;
+          uniform float uDensity;
+          uniform float uHueShift;
+          uniform float uSpeed;
+          uniform vec2 uMouse;
+          uniform float uGlowIntensity;
+          uniform float uSaturation;
+          uniform bool uMouseRepulsion;
+          uniform float uTwinkleIntensity;
+          uniform float uRotationSpeed;
+          uniform float uRepulsionStrength;
+          uniform float uMouseActiveFactor;
+          uniform float uAutoCenterRepulsion;
+          uniform bool uTransparent;
+          varying vec2 vUv;
+
+          #define NUM_LAYER 4.0
+          #define STAR_COLOR_CUTOFF 0.2
+          #define MAT45 mat2(0.7071, -0.7071, 0.7071, 0.7071)
+          #define PERIOD 3.0
+
+          float Hash21(vec2 p) {
+            p = fract(p * vec2(123.34, 456.21));
+            p += dot(p, p + 45.32);
+            return fract(p.x * p.y);
+          }
+
+          float tri(float x) {
+            return abs(fract(x) * 2.0 - 1.0);
+          }
+
+          float tris(float x) {
+            float t = fract(x);
+            return 1.0 - smoothstep(0.0, 1.0, abs(2.0 * t - 1.0));
+          }
+
+          float trisn(float x) {
+            float t = fract(x);
+            return 2.0 * (1.0 - smoothstep(0.0, 1.0, abs(2.0 * t - 1.0))) - 1.0;
+          }
+
+          vec3 hsv2rgb(vec3 c) {
+            vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+            vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+            return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+          }
+
+          float Star(vec2 uv, float flare) {
+            float d = length(uv);
+            float m = (0.05 * uGlowIntensity) / d;
+            float rays = smoothstep(0.0, 1.0, 1.0 - abs(uv.x * uv.y * 1000.0));
+            m += rays * flare * uGlowIntensity;
+            uv *= MAT45;
+            rays = smoothstep(0.0, 1.0, 1.0 - abs(uv.x * uv.y * 1000.0));
+            m += rays * 0.3 * flare * uGlowIntensity;
+            m *= smoothstep(1.0, 0.2, d);
+            return m;
+          }
+
+          vec3 StarLayer(vec2 uv) {
+            vec3 col = vec3(0.0);
+            vec2 gv = fract(uv) - 0.5; 
+            vec2 id = floor(uv);
+
+            for (int y = -1; y <= 1; y++) {
+              for (int x = -1; x <= 1; x++) {
+                vec2 offset = vec2(float(x), float(y));
+                vec2 si = id + vec2(float(x), float(y));
+                float seed = Hash21(si);
+                float size = fract(seed * 345.32);
+                float glossLocal = tri(uStarSpeed / (PERIOD * seed + 1.0));
+                float flareSize = smoothstep(0.9, 1.0, size) * glossLocal;
+
+                // 使用白色星星，带有轻微的温度变化
+                float temperature = Hash21(si + 5.0);
+                vec3 base;
+                if (temperature > 0.7) {
+                  // 蓝白色（热星）
+                  base = vec3(0.9, 0.95, 1.0);
+                } else if (temperature > 0.3) {
+                  // 纯白色（主序星）
+                  base = vec3(1.0, 1.0, 1.0);
+                } else {
+                  // 暖白色（冷星）
+                  base = vec3(1.0, 0.95, 0.9);
+                }
+
+                vec2 pad = vec2(tris(seed * 34.0 + uTime * uSpeed / 10.0), tris(seed * 38.0 + uTime * uSpeed / 30.0)) - 0.5;
+
+                float star = Star(gv - offset - pad, flareSize);
+                vec3 color = base;
+
+                float twinkle = trisn(uTime * uSpeed + seed * 6.2831) * 0.5 + 1.0;
+                twinkle = mix(1.0, twinkle, uTwinkleIntensity);
+                star *= twinkle;
+                
+                col += star * size * color;
+              }
+            }
+            return col;
+          }
+
+          void main() {
+            vec2 focalPx = uFocal * uResolution.xy;
+            vec2 uv = (vUv * uResolution.xy - focalPx) / uResolution.y;
+
+            if (uMouseRepulsion) {
+              vec2 mousePosUV = (uMouse * uResolution.xy - focalPx) / uResolution.y;
+              float mouseDist = length(uv - mousePosUV);
+              // 可见的交互效果：适中的影响范围和强度
+              float influence = smoothstep(1.2, 0.0, mouseDist); // 扩大影响范围
+              vec2 repulsion = normalize(uv - mousePosUV) * (uRepulsionStrength * 0.8 / (mouseDist + 0.2));
+              uv += repulsion * 0.05 * uMouseActiveFactor * influence; // 增加整体强度
+            }
+
+            float autoRotAngle = uTime * uRotationSpeed;
+            mat2 autoRot = mat2(cos(autoRotAngle), -sin(autoRotAngle), sin(autoRotAngle), cos(autoRotAngle));
+            uv = autoRot * uv;
+
+            uv = mat2(uRotation.x, -uRotation.y, uRotation.y, uRotation.x) * uv;
+
+            vec3 col = vec3(0.0);
+
+            for (float i = 0.0; i < 1.0; i += 1.0 / NUM_LAYER) {
+              float depth = fract(i + uStarSpeed * uSpeed);
+              float scale = mix(20.0 * uDensity, 0.5 * uDensity, depth);
+              float fade = depth * smoothstep(1.0, 0.9, depth);
+              col += StarLayer(uv * scale + i * 453.32) * fade;
+            }
+
+            float alpha = length(col);
+            alpha = smoothstep(0.0, 0.3, alpha);
+            alpha = min(alpha, 1.0);
+            gl_FragColor = vec4(col, alpha);
+          }
+          `;
+
+          useEffect(() => {
+            if (!ctnDom.current) return;
+            const ctn = ctnDom.current;
+            
+            try {
+              const renderer = new Renderer({
+                alpha: transparent,
+                premultipliedAlpha: false,
+              });
+              const gl = renderer.gl;
+
+              let program;
+
+              function resize() {
+                const scale = 1;
+                renderer.setSize(ctn.offsetWidth * scale, ctn.offsetHeight * scale);
+                if (program) {
+                  program.uniforms.uResolution.value = new Color(
+                    gl.canvas.width,
+                    gl.canvas.height,
+                    gl.canvas.width / gl.canvas.height
+                  );
+                }
+              }
+              window.addEventListener("resize", resize, false);
+              resize();
+
+              const geometry = new Triangle(gl);
+              program = new Program(gl, {
+                vertex: vertexShader,
+                fragment: fragmentShader,
+                uniforms: {
+                  uTime: { value: 0 },
+                  uResolution: {
+                    value: new Color(
+                      gl.canvas.width,
+                      gl.canvas.height,
+                      gl.canvas.width / gl.canvas.height
+                    ),
+                  },
+                  uFocal: { value: new Float32Array(focal) },
+                  uRotation: { value: new Float32Array(rotation) },
+                  uStarSpeed: { value: starSpeed },
+                  uDensity: { value: density },
+                  uHueShift: { value: hueShift },
+                  uSpeed: { value: speed },
+                  uMouse: {
+                    value: new Float32Array([
+                      smoothMousePos.current.x,
+                      smoothMousePos.current.y,
+                    ]),
+                  },
+                  uGlowIntensity: { value: glowIntensity },
+                  uSaturation: { value: saturation },
+                  uMouseRepulsion: { value: mouseRepulsion },
+                  uTwinkleIntensity: { value: twinkleIntensity },
+                  uRotationSpeed: { value: rotationSpeed },
+                  uRepulsionStrength: { value: repulsionStrength },
+                  uMouseActiveFactor: { value: 0.0 },
+                  uAutoCenterRepulsion: { value: autoCenterRepulsion },
+                  uTransparent: { value: transparent },
+                },
+              });
+
+              const mesh = new Mesh(gl, { geometry, program });
+              let animateId;
+
+              function update(t) {
+                animateId = requestAnimationFrame(update);
+                if (!disableAnimation) {
+                  program.uniforms.uTime.value = t * 0.001;
+                  program.uniforms.uStarSpeed.value = (t * 0.001 * starSpeed) / 10.0;
+                }
+
+                // 测试模式：持续在中心位置施加强大的鼠标效果
+                if (testMode) {
+                  targetMousePos.current = { x: 0.5, y: 0.5 };
+                  targetMouseActive.current = 3.0; // 强力效果
+                  // 每2秒打印一次测试模式状态
+                  if (Math.floor(t / 2000) !== Math.floor((t - 16) / 2000)) {
+                    console.log('🧪 测试模式运行中: 持续强制效果');
+                  }
+                }
+
+                const lerpFactor = 0.03; // 更平滑的过渡
+                smoothMousePos.current.x +=
+                  (targetMousePos.current.x - smoothMousePos.current.x) * lerpFactor;
+                smoothMousePos.current.y +=
+                  (targetMousePos.current.y - smoothMousePos.current.y) * lerpFactor;
+
+                smoothMouseActive.current +=
+                  (targetMouseActive.current - smoothMouseActive.current) * lerpFactor;
+
+                program.uniforms.uMouse.value[0] = smoothMousePos.current.x;
+                program.uniforms.uMouse.value[1] = smoothMousePos.current.y;
+                program.uniforms.uMouseActiveFactor.value = smoothMouseActive.current;
+                
+                // 调试：每秒显示一次鼠标状态
+                if (Math.floor(t / 1000) !== Math.floor((t - 16) / 1000)) {
+                  console.log('Mouse state:', {
+                    active: smoothMouseActive.current.toFixed(3),
+                    pos: [smoothMousePos.current.x.toFixed(3), smoothMousePos.current.y.toFixed(3)],
+                    repulsion: program.uniforms.uMouseRepulsion.value,
+                    strength: program.uniforms.uRepulsionStrength.value
+                  });
+                }
+
+                renderer.render({ scene: mesh });
+              }
+              animateId = requestAnimationFrame(update);
+              ctn.appendChild(gl.canvas);
+              
+              console.log('Canvas info:', {
+                element: gl.canvas,
+                bounds: gl.canvas.getBoundingClientRect(),
+                style: {
+                  position: window.getComputedStyle(gl.canvas).position,
+                  pointerEvents: window.getComputedStyle(gl.canvas).pointerEvents,
+                  width: gl.canvas.style.width || gl.canvas.width,
+                  height: gl.canvas.style.height || gl.canvas.height
+                },
+                parent: gl.canvas.parentElement
+              });
+
+              function handleMouseMove(e) {
+                console.log('🔥 handleMouseMove triggered!', {
+                  type: e.type,
+                  clientX: e.clientX,
+                  clientY: e.clientY,
+                  target: e.target,
+                  currentTarget: e.currentTarget
+                });
+                const rect = ctn.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width;
+                const y = 1.0 - (e.clientY - rect.top) / rect.height;
+                
+                console.log('📍 计算的鼠标位置:', { x, y, rect: rect });
+                
+                // 只在非测试模式下更新鼠标位置
+                if (!testMode) {
+                  targetMousePos.current = { x, y };
+                  targetMouseActive.current = 1.0;
+                  console.log('✅ 更新鼠标状态:', {
+                    position: targetMousePos.current,
+                    active: targetMouseActive.current
+                  });
+                } else {
+                  console.log('⚠️ 测试模式开启，忽略真实鼠标输入');
+                }
+              }
+
+              function handleMouseLeave() {
+                console.log('handleMouseLeave triggered!');
+                targetMouseActive.current = 0.0;
+              }
+
+              console.log('Galaxy initialized with:', {
+                mouseInteraction,
+                mouseRepulsion,
+                repulsionStrength,
+                starSpeed,
+                density,
+                hueShift,
+                glowIntensity,
+                saturation
+              });
+              
+              console.log('All uniforms:', Object.keys(program.uniforms).map(key => ({
+                name: key,
+                value: program.uniforms[key].value
+              })));
+              
+              console.log('Container info:', {
+                element: ctn,
+                bounds: ctn.getBoundingClientRect(),
+                style: {
+                  position: window.getComputedStyle(ctn).position,
+                  pointerEvents: window.getComputedStyle(ctn).pointerEvents,
+                  width: window.getComputedStyle(ctn).width,
+                  height: window.getComputedStyle(ctn).height
+                }
+              });
+
+              // 添加一个通用的鼠标测试监听器
+              function testMouseMove(e) {
+                console.log('TEST: Mouse detected on container at', e.clientX, e.clientY);
+              }
+              ctn.addEventListener("mousemove", testMouseMove);
+              
+              if (mouseInteraction) {
+                ctn.addEventListener("mousemove", handleMouseMove);
+                ctn.addEventListener("mouseleave", handleMouseLeave);
+                console.log('Mouse event listeners added to container');
+              } else {
+                console.log('Mouse interaction disabled');
+              }
+
+              return () => {
+                cancelAnimationFrame(animateId);
+                window.removeEventListener("resize", resize);
+                ctn.removeEventListener("mousemove", testMouseMove);
+                if (mouseInteraction) {
+                  ctn.removeEventListener("mousemove", handleMouseMove);
+                  ctn.removeEventListener("mouseleave", handleMouseLeave);
+                }
+                if (ctn.contains(gl.canvas)) {
+                  ctn.removeChild(gl.canvas);
+                }
+                gl.getExtension("WEBGL_lose_context")?.loseContext();
+              };
+            } catch (error) {
+              console.error('Galaxy组件初始化失败:', error);
+            }
+          }, [
+            focal, rotation, starSpeed, density, hueShift, disableAnimation,
+            speed, mouseInteraction, glowIntensity, saturation, mouseRepulsion,
+            twinkleIntensity, rotationSpeed, repulsionStrength, autoCenterRepulsion, transparent, testMode,
+          ]);
+
+          return <div ref={ctnDom} style={{ width: '100%', height: '100%', position: 'relative' }} {...rest} />;
+        }
+
+        // 主应用组件
+        function App() {
+          const [config, setConfig] = useState({
+            density: 1.5,
+            hueShift: 0,
+            glowIntensity: 0.6,
+            saturation: 0.1,
+            speed: 1.0,
+            rotationSpeed: 0.1,
+            repulsionStrength: 2.0,
+            mouseInteraction: true
+          });
+          
+          const [interactionEnabled, setInteractionEnabled] = useState(true);
+          const [testMode, setTestMode] = useState(false);
+
+          const presets = [
+            { name: '经典白星', density: 1.5, hueShift: 0, glowIntensity: 0.6, saturation: 0.1, speed: 1.0, repulsionStrength: 2.0 },
+            { name: '密集星空', density: 2.5, hueShift: 0, glowIntensity: 0.8, saturation: 0.1, speed: 0.5, repulsionStrength: 1.5 },
+            { name: '稀疏深空', density: 0.8, hueShift: 0, glowIntensity: 0.4, saturation: 0.1, speed: 1.5, repulsionStrength: 1.8 },
+            { name: '明亮星河', density: 1.8, hueShift: 0, glowIntensity: 1.0, saturation: 0.1, speed: 0.8, repulsionStrength: 2.5 },
+            { name: '静谧夜空', density: 1.0, hueShift: 0, glowIntensity: 0.3, saturation: 0.1, speed: 1.2, repulsionStrength: 1.0 }
+          ];
+
+          const applyPreset = (preset) => {
+            setConfig({
+              density: preset.density,
+              hueShift: preset.hueShift,
+              glowIntensity: preset.glowIntensity,
+              saturation: preset.saturation,
+              speed: preset.speed,
+              rotationSpeed: 0.1,
+              repulsionStrength: preset.repulsionStrength || 0.5,
+              mouseInteraction: interactionEnabled
+            });
+          };
+
+          // 切换鼠标交互
+          const toggleInteraction = () => {
+            const newInteractionState = !interactionEnabled;
+            setInteractionEnabled(newInteractionState);
+            setConfig(prevConfig => ({
+              ...prevConfig,
+              mouseInteraction: newInteractionState
+            }));
+            console.log('鼠标交互已', newInteractionState ? '启用' : '禁用');
+          };
+
+          // 测试模式：强制触发鼠标效果
+          const toggleTestMode = () => {
+            setTestMode(!testMode);
+            console.log('测试模式:', !testMode ? '开启' : '关闭');
+          };
+
+          // Debug: 检查传递给Galaxy的props
+          console.log('App config passed to Galaxy:', config);
+          
+          return (
+            <div className="container">
+              <div className="galaxy-background">
+                <Galaxy 
+                  starSpeed={config.speed}
+                  density={config.density}
+                  hueShift={config.hueShift}
+                  glowIntensity={config.glowIntensity}
+                  saturation={config.saturation}
+                  rotationSpeed={config.rotationSpeed}
+                  repulsionStrength={config.repulsionStrength}
+                  mouseInteraction={config.mouseInteraction}
+                  mouseRepulsion={true}
+                  testMode={testMode}
+                />
+              </div>
+              <div className="content">
+                <h1 className="title">光子矩阵</h1>
+                <p className="subtitle">Galaxy React组件演示 - 修复版</p>
+                <div className="controls">
+                  {presets.map((preset) => (
+                    <button
+                      key={preset.name}
+                      className="btn"
+                      onClick={() => applyPreset(preset)}
+                    >
+                      {preset.name}
+                    </button>
+                  ))}
+                </div>
+                
+                <div className="interaction-controls" style={{ marginTop: '20px', padding: '15px', background: 'rgba(255,255,255,0.1)', borderRadius: '10px' }}>
+                  <h3 style={{ color: 'white', marginBottom: '10px', fontSize: '16px' }}>交互控制</h3>
+                  <button
+                    className="btn"
+                    onClick={toggleInteraction}
+                    style={{ 
+                      backgroundColor: interactionEnabled ? '#4CAF50' : '#f44336',
+                      marginRight: '10px'
+                    }}
+                  >
+                    鼠标交互: {interactionEnabled ? '开启' : '关闭'}
+                  </button>
+                  <button
+                    className="btn"
+                    onClick={toggleTestMode}
+                    style={{ 
+                      backgroundColor: testMode ? '#FF9800' : '#607D8B'
+                    }}
+                  >
+                    测试模式: {testMode ? '开启' : '关闭'}
+                  </button>
+                  <div style={{ marginTop: '10px', fontSize: '12px', color: '#ccc' }}>
+                    <div>当前状态: 交互 {interactionEnabled ? '✓' : '✗'} | 测试 {testMode ? '✓' : '✗'}</div>
+                    <div>提示: 移动鼠标观察星空反应</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        // 渲染应用 - 使用React 18 API
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

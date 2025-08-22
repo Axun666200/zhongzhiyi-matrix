@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy 3D背景演示 - 光子矩阵</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .galaxy-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        .content-overlay {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(1px);
+        }
+
+        .hero-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .title {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff, #ffff00);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-shift 3s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(0, 245, 255, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            color: #00f5ff;
+            text-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .control-group {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #00f5ff;
+            font-weight: bold;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .control-group input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+
+        .value-display {
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .info-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 245, 255, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 20;
+            max-width: 300px;
+        }
+
+        .info-panel h3 {
+            color: #00f5ff;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-panel p {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 0.5rem;
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-panel {
+                position: relative;
+                margin: 2rem;
+                top: auto;
+                right: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Galaxy 3D背景容器 -->
+    <div id="galaxy-container" class="galaxy-container"></div>
+
+    <!-- 内容叠加层 -->
+    <div class="content-overlay">
+        <div class="hero-section">
+            <h1 class="title">光子矩阵</h1>
+            <p class="subtitle">Galaxy 3D背景演示</p>
+            
+            <!-- 控制面板 -->
+            <div class="controls">
+                <div class="control-group">
+                    <label for="density">星星密度</label>
+                    <input type="range" id="density" min="0.1" max="3" step="0.1" value="1.5">
+                    <div class="value-display">值: <span id="density-value">1.5</span></div>
+                </div>
+
+                <div class="control-group">
+                    <label for="glowIntensity">辉光强度</label>
+                    <input type="range" id="glowIntensity" min="0" max="1" step="0.1" value="0.5">
+                    <div class="value-display">值: <span id="glowIntensity-value">0.5</span></div>
+                </div>
+
+                <div class="control-group">
+                    <label for="hueShift">色相偏移</label>
+                    <input type="range" id="hueShift" min="0" max="360" step="10" value="240">
+                    <div class="value-display">值: <span id="hueShift-value">240</span>°</div>
+                </div>
+
+                <div class="control-group">
+                    <label for="saturation">饱和度</label>
+                    <input type="range" id="saturation" min="0" max="2" step="0.1" value="0.8">
+                    <div class="value-display">值: <span id="saturation-value">0.8</span></div>
+                </div>
+
+                <div class="control-group">
+                    <label for="speed">动画速度</label>
+                    <input type="range" id="speed" min="0" max="3" step="0.1" value="1">
+                    <div class="value-display">值: <span id="speed-value">1</span></div>
+                </div>
+
+                <div class="control-group">
+                    <label for="rotationSpeed">旋转速度</label>
+                    <input type="range" id="rotationSpeed" min="0" max="0.5" step="0.01" value="0.1">
+                    <div class="value-display">值: <span id="rotationSpeed-value">0.1</span></div>
+                </div>
+
+                <div class="control-group">
+                    <label for="twinkleIntensity">闪烁强度</label>
+                    <input type="range" id="twinkleIntensity" min="0" max="1" step="0.1" value="0.3">
+                    <div class="value-display">值: <span id="twinkleIntensity-value">0.3</span></div>
+                </div>
+
+                <div class="control-group">
+                    <label for="repulsionStrength">排斥强度</label>
+                    <input type="range" id="repulsionStrength" min="0" max="5" step="0.1" value="2">
+                    <div class="value-display">值: <span id="repulsionStrength-value">2</span></div>
+                </div>
+
+                <div class="control-group">
+                    <label>
+                        <input type="checkbox" id="mouseRepulsion" checked>
+                        鼠标排斥模式
+                    </label>
+                </div>
+
+                <div class="control-group">
+                    <label>
+                        <input type="checkbox" id="mouseInteraction" checked>
+                        鼠标交互
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 信息面板 -->
+    <div class="info-panel">
+        <h3>🌌 Galaxy组件特性</h3>
+        <p>• WebGL硬件加速渲染</p>
+        <p>• 实时鼠标交互效果</p>
+        <p>• 多层3D星空深度</p>
+        <p>• 程序化星体生成</p>
+        <p>• 平滑动画过渡</p>
+        <p>• 高度可定制参数</p>
+    </div>
+
+    <!-- 引入OGL库 -->
+    <script src="https://unpkg.com/ogl@1.0.11/dist/ogl.umd.js"></script>
+    
+    <!-- Galaxy组件脚本 -->
+    <script type="module">
+        // 直接引入Galaxy类定义
+        const { Renderer, Program, Mesh, Color, Triangle } = OGL;
+
+        const vertexShader = `
+        attribute vec2 uv;
+        attribute vec2 position;
+
+        varying vec2 vUv;
+
+        void main() {
+          vUv = uv;
+          gl_Position = vec4(position, 0, 1);
+        }
+        `;
+
+        const fragmentShader = `
+        precision highp float;
+
+        uniform float uTime;
+        uniform vec3 uResolution;
+        uniform vec2 uFocal;
+        uniform vec2 uRotation;
+        uniform float uStarSpeed;
+        uniform float uDensity;
+        uniform float uHueShift;
+        uniform float uSpeed;
+        uniform vec2 uMouse;
+        uniform float uGlowIntensity;
+        uniform float uSaturation;
+        uniform bool uMouseRepulsion;
+        uniform float uTwinkleIntensity;
+        uniform float uRotationSpeed;
+        uniform float uRepulsionStrength;
+        uniform float uMouseActiveFactor;
+        uniform float uAutoCenterRepulsion;
+        uniform bool uTransparent;
+
+        varying vec2 vUv;
+
+        #define NUM_LAYER 4.0
+        #define STAR_COLOR_CUTOFF 0.2
+        #define MAT45 mat2(0.7071, -0.7071, 0.7071, 0.7071)
+        #define PERIOD 3.0
+
+        float Hash21(vec2 p) {
+          p = fract(p * vec2(123.34, 456.21));
+          p += dot(p, p + 45.32);
+          return fract(p.x * p.y);
+        }
+
+        float tri(float x) {
+          return abs(fract(x) * 2.0 - 1.0);
+        }
+
+        float tris(float x) {
+          float t = fract(x);
+          return 1.0 - smoothstep(0.0, 1.0, abs(2.0 * t - 1.0));
+        }
+
+        float trisn(float x) {
+          float t = fract(x);
+          return 2.0 * (1.0 - smoothstep(0.0, 1.0, abs(2.0 * t - 1.0))) - 1.0;
+        }
+
+        vec3 hsv2rgb(vec3 c) {
+          vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+          vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+          return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+        }
+
+        float Star(vec2 uv, float flare) {
+          float d = length(uv);
+          float m = (0.05 * uGlowIntensity) / d;
+          float rays = smoothstep(0.0, 1.0, 1.0 - abs(uv.x * uv.y * 1000.0));
+          m += rays * flare * uGlowIntensity;
+          uv *= MAT45;
+          rays = smoothstep(0.0, 1.0, 1.0 - abs(uv.x * uv.y * 1000.0));
+          m += rays * 0.3 * flare * uGlowIntensity;
+          m *= smoothstep(1.0, 0.2, d);
+          return m;
+        }
+
+        vec3 StarLayer(vec2 uv) {
+          vec3 col = vec3(0.0);
+
+          vec2 gv = fract(uv) - 0.5; 
+          vec2 id = floor(uv);
+
+          for (int y = -1; y <= 1; y++) {
+            for (int x = -1; x <= 1; x++) {
+              vec2 offset = vec2(float(x), float(y));
+              vec2 si = id + vec2(float(x), float(y));
+              float seed = Hash21(si);
+              float size = fract(seed * 345.32);
+              float glossLocal = tri(uStarSpeed / (PERIOD * seed + 1.0));
+              float flareSize = smoothstep(0.9, 1.0, size) * glossLocal;
+
+              float red = smoothstep(STAR_COLOR_CUTOFF, 1.0, Hash21(si + 1.0)) + STAR_COLOR_CUTOFF;
+              float blu = smoothstep(STAR_COLOR_CUTOFF, 1.0, Hash21(si + 3.0)) + STAR_COLOR_CUTOFF;
+              float grn = min(red, blu) * seed;
+              vec3 base = vec3(red, grn, blu);
+              
+              float hue = atan(base.g - base.r, base.b - base.r) / (2.0 * 3.14159) + 0.5;
+              hue = fract(hue + uHueShift / 360.0);
+              float sat = length(base - vec3(dot(base, vec3(0.299, 0.587, 0.114)))) * uSaturation;
+              float val = max(max(base.r, base.g), base.b);
+              base = hsv2rgb(vec3(hue, sat, val));
+
+              vec2 pad = vec2(tris(seed * 34.0 + uTime * uSpeed / 10.0), tris(seed * 38.0 + uTime * uSpeed / 30.0)) - 0.5;
+
+              float star = Star(gv - offset - pad, flareSize);
+              vec3 color = base;
+
+              float twinkle = trisn(uTime * uSpeed + seed * 6.2831) * 0.5 + 1.0;
+              twinkle = mix(1.0, twinkle, uTwinkleIntensity);
+              star *= twinkle;
+              
+              col += star * size * color;
+            }
+          }
+
+          return col;
+        }
+
+        void main() {
+          vec2 focalPx = uFocal * uResolution.xy;
+          vec2 uv = (vUv * uResolution.xy - focalPx) / uResolution.y;
+
+          vec2 mouseNorm = uMouse - vec2(0.5);
+          
+          if (uAutoCenterRepulsion > 0.0) {
+            vec2 centerUV = vec2(0.0, 0.0);
+            float centerDist = length(uv - centerUV);
+            vec2 repulsion = normalize(uv - centerUV) * (uAutoCenterRepulsion / (centerDist + 0.1));
+            uv += repulsion * 0.05;
+          } else if (uMouseRepulsion) {
+            vec2 mousePosUV = (uMouse * uResolution.xy - focalPx) / uResolution.y;
+            float mouseDist = length(uv - mousePosUV);
+            vec2 repulsion = normalize(uv - mousePosUV) * (uRepulsionStrength / (mouseDist + 0.1));
+            uv += repulsion * 0.05 * uMouseActiveFactor;
+          } else {
+            vec2 mouseOffset = mouseNorm * 0.1 * uMouseActiveFactor;
+            uv += mouseOffset;
+          }
+
+          float autoRotAngle = uTime * uRotationSpeed;
+          mat2 autoRot = mat2(cos(autoRotAngle), -sin(autoRotAngle), sin(autoRotAngle), cos(autoRotAngle));
+          uv = autoRot * uv;
+
+          uv = mat2(uRotation.x, -uRotation.y, uRotation.y, uRotation.x) * uv;
+
+          vec3 col = vec3(0.0);
+
+          for (float i = 0.0; i < 1.0; i += 1.0 / NUM_LAYER) {
+            float depth = fract(i + uStarSpeed * uSpeed);
+            float scale = mix(20.0 * uDensity, 0.5 * uDensity, depth);
+            float fade = depth * smoothstep(1.0, 0.9, depth);
+            col += StarLayer(uv * scale + i * 453.32) * fade;
+          }
+
+          if (uTransparent) {
+            float alpha = length(col);
+            alpha = smoothstep(0.0, 0.3, alpha);
+            alpha = min(alpha, 1.0);
+            gl_FragColor = vec4(col, alpha);
+          } else {
+            gl_FragColor = vec4(col, 1.0);
+          }
+        }
+        `;
+
+        class Galaxy {
+          constructor(container, options = {}) {
+            this.container = container;
+            this.options = {
+              focal: [0.5, 0.5],
+              rotation: [1.0, 0.0],
+              starSpeed: 0.5,
+              density: 1.5,
+              hueShift: 240,
+              disableAnimation: false,
+              speed: 1.0,
+              mouseInteraction: true,
+              glowIntensity: 0.5,
+              saturation: 0.8,
+              mouseRepulsion: true,
+              repulsionStrength: 2,
+              twinkleIntensity: 0.3,
+              rotationSpeed: 0.1,
+              autoCenterRepulsion: 0,
+              transparent: true,
+              ...options
+            };
+
+            this.targetMousePos = { x: 0.5, y: 0.5 };
+            this.smoothMousePos = { x: 0.5, y: 0.5 };
+            this.targetMouseActive = 0.0;
+            this.smoothMouseActive = 0.0;
+
+            this.init();
+          }
+
+          init() {
+            const renderer = new Renderer({
+              alpha: this.options.transparent,
+              premultipliedAlpha: false,
+            });
+            
+            this.renderer = renderer;
+            this.gl = renderer.gl;
+
+            if (this.options.transparent) {
+              this.gl.enable(this.gl.BLEND);
+              this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+              this.gl.clearColor(0, 0, 0, 0);
+            } else {
+              this.gl.clearColor(0, 0, 0, 1);
+            }
+
+            this.resize = this.resize.bind(this);
+            this.handleMouseMove = this.handleMouseMove.bind(this);
+            this.handleMouseLeave = this.handleMouseLeave.bind(this);
+
+            window.addEventListener("resize", this.resize, false);
+            this.resize();
+
+            const geometry = new Triangle(this.gl);
+            this.program = new Program(this.gl, {
+              vertex: vertexShader,
+              fragment: fragmentShader,
+              uniforms: {
+                uTime: { value: 0 },
+                uResolution: {
+                  value: new Color(
+                    this.gl.canvas.width,
+                    this.gl.canvas.height,
+                    this.gl.canvas.width / this.gl.canvas.height
+                  ),
+                },
+                uFocal: { value: new Float32Array(this.options.focal) },
+                uRotation: { value: new Float32Array(this.options.rotation) },
+                uStarSpeed: { value: this.options.starSpeed },
+                uDensity: { value: this.options.density },
+                uHueShift: { value: this.options.hueShift },
+                uSpeed: { value: this.options.speed },
+                uMouse: {
+                  value: new Float32Array([
+                    this.smoothMousePos.x,
+                    this.smoothMousePos.y,
+                  ]),
+                },
+                uGlowIntensity: { value: this.options.glowIntensity },
+                uSaturation: { value: this.options.saturation },
+                uMouseRepulsion: { value: this.options.mouseRepulsion },
+                uTwinkleIntensity: { value: this.options.twinkleIntensity },
+                uRotationSpeed: { value: this.options.rotationSpeed },
+                uRepulsionStrength: { value: this.options.repulsionStrength },
+                uMouseActiveFactor: { value: 0.0 },
+                uAutoCenterRepulsion: { value: this.options.autoCenterRepulsion },
+                uTransparent: { value: this.options.transparent },
+              },
+            });
+
+            this.mesh = new Mesh(this.gl, { geometry, program: this.program });
+            this.container.appendChild(this.gl.canvas);
+
+            if (this.options.mouseInteraction) {
+              this.container.addEventListener("mousemove", this.handleMouseMove);
+              this.container.addEventListener("mouseleave", this.handleMouseLeave);
+            }
+
+            this.update();
+          }
+
+          updateOption(key, value) {
+            this.options[key] = value;
+            if (this.program && this.program.uniforms[`u${key.charAt(0).toUpperCase() + key.slice(1)}`]) {
+              this.program.uniforms[`u${key.charAt(0).toUpperCase() + key.slice(1)}`].value = value;
+            }
+          }
+
+          resize() {
+            const scale = 1;
+            this.renderer.setSize(this.container.offsetWidth * scale, this.container.offsetHeight * scale);
+            if (this.program) {
+              this.program.uniforms.uResolution.value = new Color(
+                this.gl.canvas.width,
+                this.gl.canvas.height,
+                this.gl.canvas.width / this.gl.canvas.height
+              );
+            }
+          }
+
+          handleMouseMove(e) {
+            const rect = this.container.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = 1.0 - (e.clientY - rect.top) / rect.height;
+            this.targetMousePos = { x, y };
+            this.targetMouseActive = 1.0;
+          }
+
+          handleMouseLeave() {
+            this.targetMouseActive = 0.0;
+          }
+
+          update() {
+            this.animateId = requestAnimationFrame((t) => this.update(t));
+            
+            const t = performance.now();
+            
+            if (!this.options.disableAnimation) {
+              this.program.uniforms.uTime.value = t * 0.001;
+              this.program.uniforms.uStarSpeed.value = (t * 0.001 * this.options.starSpeed) / 10.0;
+            }
+
+            const lerpFactor = 0.05;
+            this.smoothMousePos.x += (this.targetMousePos.x - this.smoothMousePos.x) * lerpFactor;
+            this.smoothMousePos.y += (this.targetMousePos.y - this.smoothMousePos.y) * lerpFactor;
+
+            this.smoothMouseActive += (this.targetMouseActive - this.smoothMouseActive) * lerpFactor;
+
+            this.program.uniforms.uMouse.value[0] = this.smoothMousePos.x;
+            this.program.uniforms.uMouse.value[1] = this.smoothMousePos.y;
+            this.program.uniforms.uMouseActiveFactor.value = this.smoothMouseActive;
+
+            this.renderer.render({ scene: this.mesh });
+          }
+
+          destroy() {
+            if (this.animateId) {
+              cancelAnimationFrame(this.animateId);
+            }
+            window.removeEventListener("resize", this.resize);
+            if (this.options.mouseInteraction) {
+              this.container.removeEventListener("mousemove", this.handleMouseMove);
+              this.container.removeEventListener("mouseleave", this.handleMouseLeave);
+            }
+            if (this.container.contains(this.gl.canvas)) {
+              this.container.removeChild(this.gl.canvas);
+            }
+            this.gl.getExtension("WEBGL_lose_context")?.loseContext();
+          }
+        }
+
+        // 初始化Galaxy
+        const container = document.getElementById('galaxy-container');
+        const galaxy = new Galaxy(container);
+
+        // 控制面板事件处理
+        const controls = {
+          density: document.getElementById('density'),
+          glowIntensity: document.getElementById('glowIntensity'),
+          hueShift: document.getElementById('hueShift'),
+          saturation: document.getElementById('saturation'),
+          speed: document.getElementById('speed'),
+          rotationSpeed: document.getElementById('rotationSpeed'),
+          twinkleIntensity: document.getElementById('twinkleIntensity'),
+          repulsionStrength: document.getElementById('repulsionStrength'),
+          mouseRepulsion: document.getElementById('mouseRepulsion'),
+          mouseInteraction: document.getElementById('mouseInteraction')
+        };
+
+        // 绑定滑块事件
+        Object.keys(controls).forEach(key => {
+          const control = controls[key];
+          if (control.type === 'range') {
+            const valueDisplay = document.getElementById(`${key}-value`);
+            
+            control.addEventListener('input', (e) => {
+              const value = parseFloat(e.target.value);
+              valueDisplay.textContent = key === 'hueShift' ? value + '°' : value;
+              galaxy.updateOption(key, value);
+            });
+          } else if (control.type === 'checkbox') {
+            control.addEventListener('change', (e) => {
+              galaxy.updateOption(key, e.target.checked);
+            });
+          }
+        });
+
+        console.log('🌌 Galaxy 3D背景演示已加载完成！');
+        console.log('移动鼠标体验交互效果，调整控制面板查看不同配置。');
+    </script>
+</body>
+</html>

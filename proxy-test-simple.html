@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代理测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        h1 { text-align: center; margin-bottom: 30px; }
+        .test-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        button:hover { background: #45a049; }
+        .result {
+            background: rgba(0,0,0,0.3);
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success { color: #90EE90; }
+        .error { color: #FFB6C1; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 代理测试中心</h1>
+        
+        <div class="test-section">
+            <h3>📡 IP地址检测</h3>
+            <button onclick="testIP()">检测当前IP</button>
+            <div id="ip-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🌍 地理位置检测</h3>
+            <button onclick="testLocation()">检测地理位置</button>
+            <div id="location-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔒 HTTPS测试</h3>
+            <button onclick="testHTTPS()">测试HTTPS连接</button>
+            <div id="https-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 代理配置信息</h3>
+            <div class="result">
+代理服务器: 61.172.168.161:2081
+用户名: ravu01r1  
+密码: ravu01r1
+类型: HTTP代理
+
+🔧 Python配置:
+proxies = {
+    'http': 'http://ravu01r1:ravu01r1@61.172.168.161:2081',
+    'https': 'http://ravu01r1:ravu01r1@61.172.168.161:2081'
+}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function testIP() {
+            const result = document.getElementById('ip-result');
+            result.textContent = '🔄 检测中...';
+            
+            try {
+                const response = await fetch('https://httpbin.org/ip');
+                const data = await response.json();
+                result.innerHTML = `✅ 成功!\nIP地址: ${data.origin}\n状态码: ${response.status}`;
+                result.className = 'result success';
+                
+                // 检查是否使用了代理
+                if (data.origin.includes('61.172.168.161')) {
+                    result.innerHTML += '\n🎉 代理工作正常！';
+                } else {
+                    result.innerHTML += '\n⚠️  注意: 可能未使用代理';
+                }
+            } catch (error) {
+                result.textContent = `❌ 错误: ${error.message}`;
+                result.className = 'result error';
+            }
+        }
+
+        async function testLocation() {
+            const result = document.getElementById('location-result');
+            result.textContent = '🔄 检测中...';
+            
+            try {
+                const response = await fetch('http://ip-api.com/json');
+                const data = await response.json();
+                result.innerHTML = `✅ 成功!\n国家: ${data.country}\n地区: ${data.regionName}\n城市: ${data.city}\nISP: ${data.isp}\nIP: ${data.query}`;
+                result.className = 'result success';
+            } catch (error) {
+                result.textContent = `❌ 错误: ${error.message}`;
+                result.className = 'result error';
+            }
+        }
+
+        async function testHTTPS() {
+            const result = document.getElementById('https-result');
+            result.textContent = '🔄 检测中...';
+            
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                result.innerHTML = `✅ HTTPS成功!\nIP: ${data.ip}\n状态码: ${response.status}`;
+                result.className = 'result success';
+            } catch (error) {
+                result.textContent = `❌ HTTPS错误: ${error.message}`;
+                result.className = 'result error';
+            }
+        }
+
+        // 页面加载时自动测试
+        window.onload = function() {
+            testIP();
+        };
+    </script>
+</body>
+</html>
