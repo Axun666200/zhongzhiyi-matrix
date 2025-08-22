@@ -49,7 +49,7 @@ mac:
 
 dmg:
   title: "${productName} ${version}"
-  # icon: images/2.icns  # 临时注释掉，修复hdiutil错误
+  icon: images/2.icns
   iconSize: 80
   contents:
     - x: 410
