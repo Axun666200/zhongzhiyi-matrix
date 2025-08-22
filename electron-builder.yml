@@ -3,7 +3,7 @@ directories:
   buildResources: build
 
 appId: com.zhongzhiyi.matrix
-productName: 众之翼矩阵
+productName: ZhongZhiYi Matrix
 copyright: "Copyright © 2024 众之翼团队"
 
 files:
@@ -49,7 +49,7 @@ mac:
 
 dmg:
   title: "${productName} ${version}"
-  icon: images/2.icns
+  # icon: images/2.icns  # 临时注释，修复hdiutil错误
   iconSize: 80
   contents:
     - x: 410
